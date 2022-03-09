@@ -4,7 +4,7 @@ Properties-based testing provides the following benefits:
 - Programmers can better cover the scope of all possible inputs to a function, API endpoint, etc.
 - Tests outcomes are reproducible
 - Programmers can eliminate a lot of code duplication and get better tests at the same time because properties-based testing uses random test data.
-- Properties-based testing is useful for all sorts of tests: unit, integration, course-grained functional/system tests, and even API exploration as I will show in some AAC examples.
+- Properties-based testing is useful for all sorts of tests: unit, integration, course-grained functional/system/black-box.
 
 A few properties-based testing library exist in Golang. [Gopter](https://github.com/leanovate/gopter/) is an example. This library has much less code than [Gopter](https://github.com/leanovate/gopter/) and provides a very important feature that Gopter does not, namely that all abstractions are fully composable.
 
