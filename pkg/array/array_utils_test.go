@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/go-test/deep"
 	"github.com/hashicorp/go-multierror"
-	"github.com/mikejlong60/genericpropcheck/pkg/propcheck"
+	"github.com/mikejlong60/golangz/pkg/propcheck"
 	"strings"
 	"testing"
 	"time"

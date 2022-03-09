@@ -3,8 +3,8 @@ package linked_list
 import (
 	"fmt"
 	"github.com/hashicorp/go-multierror"
-	"github.com/mikejlong60/genericpropcheck/pkg/array"
-	"github.com/mikejlong60/genericpropcheck/pkg/propcheck"
+	"github.com/mikejlong60/golangz/pkg/array"
+	"github.com/mikejlong60/golangz/pkg/propcheck"
 	"testing"
 	"time"
 )
