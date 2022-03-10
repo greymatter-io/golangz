@@ -3,8 +3,8 @@ package linked_list
 import (
 	"fmt"
 	"github.com/hashicorp/go-multierror"
-	"github.com/mikejlong60/golangz/pkg/array"
-	"github.com/mikejlong60/golangz/pkg/propcheck"
+	"github.com/mikejlong60/golangz/arraylist"
+	"github.com/mikejlong60/golangz/propcheck"
 	"testing"
 	"time"
 )
@@ -14,13 +14,13 @@ func TestPush(t *testing.T) {
 	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
-		"Validate Push for ConsList  \n",
+		"Validate Push for LinkedList  \n",
 		func(xs []string) []string {
 			return xs
 		},
 		func(xss []string) (bool, error) {
 			var errors error
-			var l *ConsList[string]
+			var l *LinkedList[string]
 			var i int
 			for {
 				if len(xss) == 0 {
@@ -28,7 +28,7 @@ func TestPush(t *testing.T) {
 				}
 				l = Push(xss[i], l)
 				if l.head != xss[i] {
-					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to head of ConsList", l.head, xss[i]))
+					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to head of LinkedList", l.head, xss[i]))
 				}
 				if i+1 == len(xss) {
 					break
@@ -52,13 +52,13 @@ func TestAddLast(t *testing.T) {
 	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
-		"Validate AddLast for ConsList  \n",
+		"Validate AddLast for LinkedList  \n",
 		func(xs []string) []string {
 			return xs
 		},
 		func(xss []string) (bool, error) {
 			var errors error
-			var l *ConsList[string]
+			var l *LinkedList[string]
 			var i int
 			for {
 				if len(xss) == 0 {
@@ -66,10 +66,10 @@ func TestAddLast(t *testing.T) {
 				}
 				l = AddLast(xss[i], l)
 				if l.head == xss[i] && i > 0 {
-					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to last Cons of ConsList, not the beginning", l.head, xss[i]))
+					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to last Cons of LinkedList, not the beginning", l.head, xss[i]))
 				}
 				if Len(l) != i+1 {
-					errors = multierror.Append(errors, fmt.Errorf("Element %v did not get added to ConsList", l.head))
+					errors = multierror.Append(errors, fmt.Errorf("Element %v did not get added to LinkedList", l.head))
 				}
 				if i+1 == len(xss) {
 					break
@@ -94,7 +94,7 @@ func TestAddWhile(t *testing.T) {
 	type resultType = []int
 
 	prop := propcheck.ForAll(ge,
-		"Validate AddWhile for ConsList  \n",
+		"Validate AddWhile for LinkedList  \n",
 		func(xs []int) []int {
 			return xs
 		},
@@ -126,7 +126,7 @@ func TestAddWhile(t *testing.T) {
 					return false
 				}
 			}
-			if !array.SetEquality(arrF, ToArray(xs), p2) {
+			if !arraylist.SetEquality(arrF, ToArray(xs), p2) {
 				errors = multierror.Append(errors, fmt.Errorf("AddWhile did not stop adding when it hit limit. List from AddWhile:%v, expected: %v", ToArray(xs), arrF))
 			}
 
@@ -147,13 +147,13 @@ func TestTail(t *testing.T) {
 	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
-		"Validate Tail on ConsList  \n",
+		"Validate Tail on LinkedList  \n",
 		func(xs []string) []string {
 			return xs
 		},
 		func(xs []string) (bool, error) {
 			var errors error
-			var l *ConsList[string]
+			var l *LinkedList[string]
 			_, err := Tail(l)
 			if err == nil {
 				errors = multierror.Append(errors, err)
@@ -178,13 +178,13 @@ func TestDropAndLen(t *testing.T) {
 		number int
 	}
 	prop := propcheck.ForAll(ge,
-		"Validate Drop and Len on ConsList  \n",
+		"Validate Drop and Len on LinkedList  \n",
 		func(xs []string) []string {
 			return xs
 		},
 		func(xss []string) (bool, error) {
 			var errors error
-			var l *ConsList[fancyType]
+			var l *LinkedList[fancyType]
 			var i = 0
 			for {
 				if len(xss) == 0 {
@@ -222,13 +222,13 @@ func TestTailUnwind(t *testing.T) {
 	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
-		"Validate unwinding Tail on ConsList  \n",
+		"Validate unwinding Tail on LinkedList  \n",
 		func(xs []string) []string {
 			return xs
 		},
 		func(xss []string) (bool, error) {
 			var errors error
-			var l *ConsList[string]
+			var l *LinkedList[string]
 			var i int
 			for {
 				if len(xss) == 0 {
@@ -268,13 +268,13 @@ func TestHead(t *testing.T) {
 	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
-		"Validate Head on ConsList \n",
+		"Validate Head on LinkedList \n",
 		func(xs []string) []string {
 			return xs
 		},
 		func(xss []string) (bool, error) {
 			var errors error
-			var l *ConsList[string]
+			var l *LinkedList[string]
 			var i int
 			for {
 				if len(xss) == 0 {
@@ -282,7 +282,7 @@ func TestHead(t *testing.T) {
 				}
 				l = Push(xss[i], l)
 				if Head(l) != xss[i] {
-					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to head of ConsList", Head(l), xss[i]))
+					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to head of LinkedList", Head(l), xss[i]))
 				}
 				if i+1 == len(xss) {
 					break
@@ -306,13 +306,13 @@ func TestFoldRight(t *testing.T) {
 	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
-		"Validate FoldRight ConsList  \n",
+		"Validate FoldRight LinkedList  \n",
 		func(xs []string) []string {
 			return xs
 		},
 		func(xss []string) (bool, error) {
 			var errors error
-			var l *ConsList[string]
+			var l *LinkedList[string]
 			var i = 0
 			for {
 				if len(xss) == 0 {
@@ -337,7 +337,7 @@ func TestFoldRight(t *testing.T) {
 				}
 			}
 
-			if !array.SetEquality(xss, fConcat, equality) {
+			if !arraylist.SetEquality(xss, fConcat, equality) {
 				errors = multierror.Append(errors, fmt.Errorf("FoldRight with toArray function returned %v but should have returned %v", fConcat, xss))
 			}
 			if errors != nil {
@@ -356,13 +356,13 @@ func TestFoldLeftAndFoldRight(t *testing.T) {
 	ge := propcheck.ChooseList(0, 200, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
-		"Validate FoldLeft and FoldRight of ConsList  \n",
+		"Validate FoldLeft and FoldRight of LinkedList  \n",
 		func(xs []string) []string {
 			return xs
 		},
 		func(xss []string) (bool, error) {
 			var errors error
-			var l *ConsList[string]
+			var l *LinkedList[string]
 			var xssConcat string
 			var i = 0
 			for {
@@ -395,10 +395,10 @@ func TestFoldLeftAndFoldRight(t *testing.T) {
 				}
 			}
 
-			if !array.SetEquality(xss, flConcat, equality) {
+			if !arraylist.SetEquality(xss, flConcat, equality) {
 				errors = multierror.Append(errors, fmt.Errorf("FoldLeft with toArray function returned %v but should have returned %v", flConcat, xss))
 			}
-			if !array.SetEquality(xss, frConcat, equality) {
+			if !arraylist.SetEquality(xss, frConcat, equality) {
 				errors = multierror.Append(errors, fmt.Errorf("FoldRight with toArray function returned %v but should have returned %v", frConcat, xss))
 			}
 
@@ -418,13 +418,13 @@ func TestOrderingOfFoldLeftAndFoldRight(t *testing.T) {
 	ge := propcheck.ChooseList(0, 200, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
-		"Validate FoldLeft and FoldRight of ConsList  \n",
+		"Validate FoldLeft and FoldRight of LinkedList  \n",
 		func(xs []string) []string {
 			return xs
 		},
 		func(xss []string) (bool, error) {
 			var errors error
-			var l *ConsList[string]
+			var l *LinkedList[string]
 			var xssConcat string
 			var i = 0
 			for {

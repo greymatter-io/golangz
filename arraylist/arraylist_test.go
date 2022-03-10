@@ -1,11 +1,10 @@
-package array
+package arraylist
 
 import (
 	"fmt"
 	"github.com/go-test/deep"
 	"github.com/hashicorp/go-multierror"
-	"github.com/mikejlong60/golangz/pkg/array"
-	"github.com/mikejlong60/golangz/pkg/propcheck"
+	"github.com/mikejlong60/golangz/propcheck"
 	"strings"
 	"testing"
 	"time"
@@ -157,7 +156,7 @@ func TestConcatArrayOfArrays(t *testing.T) {
 					return false
 				}
 			}
-			if !array.SetEquality(actual, expected, p) {
+			if !SetEquality(actual, expected, p) {
 				errors = multierror.Append(errors, fmt.Errorf("Actual:%v\n    Expected:%v", actual, expected))
 			}
 			if errors != nil {

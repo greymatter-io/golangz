@@ -1,4 +1,4 @@
-package util
+package sorting
 
 func qs(l, r int, partition func(l, r, pivot int) int) {
 	if l < r {

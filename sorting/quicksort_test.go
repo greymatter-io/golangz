@@ -1,10 +1,10 @@
-package util
+package sorting
 
 import (
 	"fmt"
 	"github.com/go-test/deep"
 	"github.com/hashicorp/go-multierror"
-	"github.com/mikejlong60/golangz/pkg/propcheck"
+	"github.com/mikejlong60/golangz/propcheck"
 	"sort"
 	"testing"
 	"time"

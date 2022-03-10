@@ -1,4 +1,4 @@
-package array
+package arraylist
 
 func FoldRight[T1, T2 any](as []T1, z T2, f func(T1, T2) T2) T2 {
 	if len(as) > 1 { //Slice has a head and a tail.
