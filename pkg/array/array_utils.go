@@ -1,13 +1,12 @@
 package array
 
-//This is a general foldRight that reverses the order of the string array.  Run it twice to put it in original order using Id(see below).
-func FoldRight[T any](as, z []T, f func(T, []T) []T) []T {
+func FoldRight[T1, T2 any](as []T1, z T2, f func(T1, T2) T2) T2 {
 	if len(as) > 1 { //Slice has a head and a tail.
 		h, t := as[0], as[1:len(as)]
 		return f(h, FoldRight(t, z, f))
 	} else if len(as) == 1 { //Slice has a head and an empty tail.
 		h := as[0]
-		return f(h, FoldRight([]T{}, z, f))
+		return f(h, FoldRight([]T1{}, z, f))
 	}
 	return z
 }
@@ -17,16 +16,32 @@ func Id[T any](s T, as []T) []T {
 	return gss
 }
 
+func Reverse[T1 any](xs []T1) []T1 {
+	id := Id[T1]
+	return FoldRight(xs, []T1{}, id)
+}
+
 //A structure-preserving Functor on the given array of T.
-func Map[T any](as []T, f func(T) T) []T {
-	g := func(s T, as []T) []T {
+func Map[T1, T2 any](as []T1, f func(T1) T2) []T2 {
+	g := func(s T1, as []T2) []T2 {
 		gss := append(as, f(s))
 		return gss
 	}
-	id := Id[T]
-	xs := FoldRight(as, []T{}, g)
-	//Reverse it to put the array back in original order
-	return FoldRight(xs, []T{}, id)
+	xs := FoldRight(as, []T2{}, g)
+	//Put the array back in original order
+	return Reverse(xs)
+}
+
+func Concat[A any](l [][]A) []A {
+	g := func(s []A, as []A) []A {
+		gss := append(as, s...)
+		return gss
+	}
+	return FoldRight(Reverse(l), []A{}, g)
+}
+
+func FlatMap[T1, T2 any](as []T1, f func(T1) []T2) []T2 {
+	return Concat(Map(as, f))
 }
 
 //g after f in order of fs

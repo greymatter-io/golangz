@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-test/deep"
 	"github.com/hashicorp/go-multierror"
+	"github.com/mikejlong60/golangz/pkg/array"
 	"github.com/mikejlong60/golangz/pkg/propcheck"
 	"strings"
 	"testing"
@@ -79,6 +80,95 @@ func TestFoldRightForInts(t *testing.T) {
 	)
 	result := prop.Run(propcheck.RunParms{100, rng})
 	propcheck.ExpectSuccess[[]int](t, result)
+
+}
+
+func TestFlatMap(t *testing.T) {
+	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
+	ge := propcheck.ChooseList(3, 10, propcheck.Int())
+
+	prop := propcheck.ForAll(ge,
+		"Test Flatmap turns an array of ints into an array of strings that can have different values because FlatMap let's you see the current value as it iterates over each element in the list.\n",
+		func(xs []int) []int {
+			return xs
+		},
+		func(xs []int) (bool, error) {
+			var errors error
+			f := func(x int) []string {
+				if x > 1157800070 {
+					return []string{fmt.Sprintf("%v was greater than 1157800070", x)}
+				} else {
+					return []string{fmt.Sprintf("%v", x)}
+				}
+			}
+
+			actual := FlatMap(xs, f)
+			var expected []string
+			for _, x := range xs {
+				if x > 1157800070 {
+					expected = append(expected, fmt.Sprintf("%v was greater than 1157800070", x))
+				} else {
+					expected = append(expected, fmt.Sprintf("%v", x))
+				}
+			}
+
+			p := func(x, y string) bool {
+				if x == y {
+					return true
+				} else {
+					return false
+				}
+			}
+			if !array.SetEquality(actual, expected, p) {
+				errors = multierror.Append(errors, fmt.Errorf("Actual:%v\n    Expected:%v", actual, expected))
+			}
+			if errors != nil {
+				return false, errors
+			} else {
+				return true, nil
+			}
+		},
+	)
+	result := prop.Run(propcheck.RunParms{100, rng})
+	propcheck.ExpectSuccess[[]int](t, result)
+}
+
+func TestConcatArrayOfArrays(t *testing.T) {
+	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
+	ge := propcheck.ChooseList(0, 20, propcheck.ListOfN(10, propcheck.Int()))
+
+	prop := propcheck.ForAll(ge,
+		"Test Concat that flattens an array of arrays by 1 level and preserves order\"  \n",
+		func(xs [][]int) [][]int {
+			return xs
+		},
+		func(xss [][]int) (bool, error) {
+			var errors error
+			actual := Concat(xss)
+			var expected []int
+			for _, xs := range xss {
+				expected = append(expected, xs...)
+			}
+
+			p := func(x, y int) bool {
+				if x == y {
+					return true
+				} else {
+					return false
+				}
+			}
+			if !array.SetEquality(actual, expected, p) {
+				errors = multierror.Append(errors, fmt.Errorf("Actual:%v\n    Expected:%v", actual, expected))
+			}
+			if errors != nil {
+				return false, errors
+			} else {
+				return true, nil
+			}
+		},
+	)
+	result := prop.Run(propcheck.RunParms{100, rng})
+	propcheck.ExpectSuccess[[][]int](t, result)
 
 }
 

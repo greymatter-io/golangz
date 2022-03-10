@@ -98,7 +98,7 @@ func TestAddWhile(t *testing.T) {
 		func(xs []int) []int {
 			return xs
 		},
-		func(xss resultType) (bool, error) { //TODO This input type has to match that of ExpectSuccess. This is a bug in your Prop mechanism you need to fix.
+		func(xss resultType) (bool, error) {
 			p := func(x int) bool {
 				if x > 50 { //only add ints > 50 to new list
 					return true
