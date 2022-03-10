@@ -5,7 +5,5 @@ github.com/hashicorp/errwrap v1.1.0 h1:OxrOeh75EUXMY8TBjag2fzXGZ40LB6IKw45YeGUDY
 github.com/hashicorp/errwrap v1.1.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=
 github.com/hashicorp/go-multierror v1.1.1 h1:H5DkEtf6CXdFp0N0Em5UCwQpXMWke8IA0+lD48awMYo=
 github.com/hashicorp/go-multierror v1.1.1/go.mod h1:iw975J/qwKPdAO1clOe2L8331t/9/fmwbPZ6JB6eMoM=
-github.com/mikejlong60/golangz v0.1.0 h1:jaI6ISl5+hxhevsiXsJXI56F+lZd5k2XwWIbVS08YI4=
-github.com/mikejlong60/golangz v0.1.0/go.mod h1:FooXGJ5jR17jKyKEb3ZLWVPkj63XAOS9a16GoMCVXLg=
 github.com/mikejlong60/golangz v0.1.2 h1:vx/t2FUHxvnYNlcn/ISGue/0HmUBikOlLLn6T7n7dMM=
 github.com/mikejlong60/golangz v0.1.2/go.mod h1:WGCoHol5hjtfDrU0BJUgKqrx3J5PP2uk2sunvb4GRn8=
