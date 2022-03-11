@@ -1,5 +1,6 @@
 package arrays
 
+//TODO make FoldLeft so you don't have to reverse the array at the end. Just like your linked list.
 func FoldRight[T1, T2 any](as []T1, z T2, f func(T1, T2) T2) T2 {
 	if len(as) > 1 { //Slice has a head and a tail.
 		h, t := as[0], as[1:len(as)]
@@ -11,7 +12,7 @@ func FoldRight[T1, T2 any](as []T1, z T2, f func(T1, T2) T2) T2 {
 	return z
 }
 
-func Id[T any](s T, as []T) []T {
+func appender[T any](s T, as []T) []T {
 	gss := append(as, s)
 	return gss
 }
@@ -21,8 +22,8 @@ func Zero[T any]() []T {
 }
 
 func Reverse[T1 any](xs []T1) []T1 {
-	id := Id[T1]
-	return FoldRight(xs, Zero[T1](), id)
+	f := appender[T1]
+	return FoldRight(xs, Zero[T1](), f)
 }
 
 //A structure-preserving Functor on the given array of T.
@@ -80,10 +81,10 @@ func Filter[T any](as []T, p func(T) bool) []T {
 	}
 	xs := FoldRight(as, []T{}, g)
 
-	id := Id[T]
+	f := appender[T]
 
 	//Reverse it to put the array back in original order
-	return FoldRight(xs, Zero[T](), id)
+	return FoldRight(xs, Zero[T](), f)
 }
 
 func Append[T any](as1, as2 []T) []T {
@@ -141,7 +142,6 @@ func SetMinus[T any](a []T, b []T, equality func(l, r T) bool) []T {
 func SetIntersection[T any](a []T, b []T, equality func(l, r T) bool) []T {
 	ma := SetMinus(a, b, equality)
 	mb := SetMinus(b, a, equality)
-	Append(ma, mb)
 	return SetMinus(SetUnion(a, b), SetUnion(ma, mb), equality)
 }
 

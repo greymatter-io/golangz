@@ -351,7 +351,6 @@ func TestSetUnion(t *testing.T) {
 }
 
 func TestCompose(t *testing.T) {
-
 	normalizeUserDn := func(userDN string) string {
 
 		lowercase := func(s string) string {
@@ -381,8 +380,8 @@ func TestCompose(t *testing.T) {
 		if strings.HasPrefix(normalized[0], "cn") {
 			result = strings.Join(normalized, ",")
 		} else {
-			id := Id[string]
-			reversed := FoldRight(normalized, []string{}, id) //Reverse the list
+			f := appender[string]
+			reversed := FoldRight(normalized, []string{}, f) //Reverse the list
 			result = strings.Join(reversed, ",")
 		}
 		return result
