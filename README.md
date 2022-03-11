@@ -1,4 +1,4 @@
-# Functional Programming tools in Golang that use Go 1.18 Generics.
+# Functional Programming tools in Golang that use Go 1.18 Generics.  
 
 General Purpose tools for Functional Programming
 - Generic Set operations on Golang arrays: filtering, Union, Intersection, Minus
