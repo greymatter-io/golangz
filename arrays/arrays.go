@@ -12,7 +12,7 @@ func FoldRight[T1, T2 any](as []T1, z T2, f func(T1, T2) T2) T2 {
 	return z
 }
 
-func appender[T any](s T, as []T) []T {
+func Appender[T any](s T, as []T) []T {
 	gss := append(as, s)
 	return gss
 }
@@ -22,7 +22,7 @@ func Zero[T any]() []T {
 }
 
 func Reverse[T1 any](xs []T1) []T1 {
-	f := appender[T1]
+	f := Appender[T1]
 	return FoldRight(xs, Zero[T1](), f)
 }
 
@@ -52,25 +52,6 @@ func FlatMap[T1, T2 any](as []T1, f func(T1) []T2) []T2 {
 	return Concat(Map(as, f))
 }
 
-//g after f in order of fs
-func ComposeAll[T any](fs []func(s T) T) func(s T) T {
-	var g = func(s T) T {
-		return s
-	}
-
-	for _, f := range fs {
-		g = Compose(f, g)
-	}
-	return g
-}
-
-//f after g
-func Compose[T any](f, g func(s T) T) func(s T) T {
-	return func(s T) T {
-		return f(g(s))
-	}
-}
-
 func Filter[T any](as []T, p func(T) bool) []T {
 	var g = func(h T, accum []T) []T {
 		if p(h) {
@@ -81,7 +62,7 @@ func Filter[T any](as []T, p func(T) bool) []T {
 	}
 	xs := FoldRight(as, []T{}, g)
 
-	f := appender[T]
+	f := Appender[T]
 
 	//Reverse it to put the array back in original order
 	return FoldRight(xs, Zero[T](), f)
@@ -101,11 +82,6 @@ func Contains[T any](source []T, contains T, equality func(l, r T) bool) bool {
 		} else {
 			return false
 		}
-		//if fmt.Sprint(s) == fmt.Sprint(contains) {
-		//	return true
-		//} else {
-		//		return false
-		//	}
 	}
 	r := Filter(source, p)
 	if len(r) > 0 {
@@ -139,12 +115,14 @@ func SetMinus[T any](a []T, b []T, equality func(l, r T) bool) []T {
 	return result
 }
 
+//Returns the intersection of set 'a' and 'b'
 func SetIntersection[T any](a []T, b []T, equality func(l, r T) bool) []T {
 	ma := SetMinus(a, b, equality)
 	mb := SetMinus(b, a, equality)
 	return SetMinus(SetUnion(a, b), SetUnion(ma, mb), equality)
 }
 
+//Returns the set union of set 'a' and 'b'
 func SetUnion[T any](a []T, b []T) []T {
 	return Append(a, b)
 }
