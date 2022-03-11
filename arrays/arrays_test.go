@@ -1,4 +1,4 @@
-package arraylist
+package arrays
 
 import (
 	"fmt"
@@ -87,28 +87,21 @@ func TestFlatMap(t *testing.T) {
 	ge := propcheck.ChooseList(3, 10, propcheck.Int())
 
 	prop := propcheck.ForAll(ge,
-		"Test Flatmap turns an array of ints into an array of strings that can have different values because FlatMap let's you see the current value as it iterates over each element in the list.\n",
+		"Test Flatmap turns an array of ints into a larger sized array of strings because FlatMap let's you remove a layer from the given array.\n",
 		func(xs []int) []int {
 			return xs
 		},
 		func(xs []int) (bool, error) {
 			var errors error
 			f := func(x int) []string {
-				if x > 1157800070 {
-					return []string{fmt.Sprintf("%v was greater than 1157800070", x)}
-				} else {
-					return []string{fmt.Sprintf("%v", x)}
-				}
+				someExtraThingsInResult := []string{"a", "b", "c", fmt.Sprint(x)}
+				return append(someExtraThingsInResult)
 			}
 
 			actual := FlatMap(xs, f)
 			var expected []string
 			for _, x := range xs {
-				if x > 1157800070 {
-					expected = append(expected, fmt.Sprintf("%v was greater than 1157800070", x))
-				} else {
-					expected = append(expected, fmt.Sprintf("%v", x))
-				}
+				expected = append(expected, []string{"a", "b", "c", fmt.Sprint(x)}...)
 			}
 
 			p := func(x, y string) bool {

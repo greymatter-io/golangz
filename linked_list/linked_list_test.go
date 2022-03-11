@@ -3,7 +3,7 @@ package linked_list
 import (
 	"fmt"
 	"github.com/hashicorp/go-multierror"
-	"github.com/mikejlong60/golangz/arraylist"
+	"github.com/mikejlong60/golangz/arrays"
 	"github.com/mikejlong60/golangz/propcheck"
 	"testing"
 	"time"
@@ -126,7 +126,7 @@ func TestAddWhile(t *testing.T) {
 					return false
 				}
 			}
-			if !arraylist.SetEquality(arrF, ToArray(xs), p2) {
+			if !arrays.SetEquality(arrF, ToArray(xs), p2) {
 				errors = multierror.Append(errors, fmt.Errorf("AddWhile did not stop adding when it hit limit. List from AddWhile:%v, expected: %v", ToArray(xs), arrF))
 			}
 
@@ -337,7 +337,7 @@ func TestFoldRight(t *testing.T) {
 				}
 			}
 
-			if !arraylist.SetEquality(xss, fConcat, equality) {
+			if !arrays.SetEquality(xss, fConcat, equality) {
 				errors = multierror.Append(errors, fmt.Errorf("FoldRight with toArray function returned %v but should have returned %v", fConcat, xss))
 			}
 			if errors != nil {
@@ -395,10 +395,10 @@ func TestFoldLeftAndFoldRight(t *testing.T) {
 				}
 			}
 
-			if !arraylist.SetEquality(xss, flConcat, equality) {
+			if !arrays.SetEquality(xss, flConcat, equality) {
 				errors = multierror.Append(errors, fmt.Errorf("FoldLeft with toArray function returned %v but should have returned %v", flConcat, xss))
 			}
-			if !arraylist.SetEquality(xss, frConcat, equality) {
+			if !arrays.SetEquality(xss, frConcat, equality) {
 				errors = multierror.Append(errors, fmt.Errorf("FoldRight with toArray function returned %v but should have returned %v", frConcat, xss))
 			}
 

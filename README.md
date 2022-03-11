@@ -1,7 +1,18 @@
 # Property-Based Testing and Functional Programming tools in Golang that use Go 1.18 Generics.
 
-Properties-based testing provides the following benefits:
-- Programmers can better cover the scope of all possible inputs to a function, API endpoint, etc.
+General Purpose tools
+- Generic set operations on Golang arrays
+- Generic Linked List
+- Generic function composition
+- Generic sort
+
+A Properties-based testing library that is based upon ScalaCheck and Haskell Quickcheck
+- Everything has strong typing thanks to Golang Generics
+- Many different kinds of generators
+- Every generator is composable. Lots of generators are included already and new ones are compositions of existing generators.
+- A property is composable with other properties
+- Assertions are composable with And and Or logic
+- Programmers can better cover the scope of all possible inputs to a test(i.e. zero values, empty things, etc).
 - Tests outcomes are reproducible
 - Programmers can eliminate a lot of code duplication and get better tests at the same time because properties-based testing uses random test data.
 - Properties-based testing is useful for all sorts of tests: unit, integration, course-grained functional/system/black-box.

@@ -1,4 +1,4 @@
-package arraylist
+package arrays
 
 func FoldRight[T1, T2 any](as []T1, z T2, f func(T1, T2) T2) T2 {
 	if len(as) > 1 { //Slice has a head and a tail.
@@ -6,7 +6,7 @@ func FoldRight[T1, T2 any](as []T1, z T2, f func(T1, T2) T2) T2 {
 		return f(h, FoldRight(t, z, f))
 	} else if len(as) == 1 { //Slice has a head and an empty tail.
 		h := as[0]
-		return f(h, FoldRight([]T1{}, z, f))
+		return f(h, FoldRight(Zero[T1](), z, f))
 	}
 	return z
 }
@@ -16,9 +16,13 @@ func Id[T any](s T, as []T) []T {
 	return gss
 }
 
+func Zero[T any]() []T {
+	return []T{}
+}
+
 func Reverse[T1 any](xs []T1) []T1 {
 	id := Id[T1]
-	return FoldRight(xs, []T1{}, id)
+	return FoldRight(xs, Zero[T1](), id)
 }
 
 //A structure-preserving Functor on the given array of T.
@@ -27,7 +31,7 @@ func Map[T1, T2 any](as []T1, f func(T1) T2) []T2 {
 		gss := append(as, f(s))
 		return gss
 	}
-	xs := FoldRight(as, []T2{}, g)
+	xs := FoldRight(as, Zero[T2](), g)
 	//Put the array back in original order
 	return Reverse(xs)
 }
@@ -37,9 +41,12 @@ func Concat[A any](l [][]A) []A {
 		gss := append(as, s...)
 		return gss
 	}
-	return FoldRight(Reverse(l), []A{}, g)
+	//in := Id(A[])
+	return FoldRight(Reverse(l), Zero[A](), g)
 }
 
+//Similar to Map in that it takes an array of T1 and applies a function to each element.
+//But FlatMap is more powerful than map. We can use flatMap to generate a collection that is either larger or smaller than the original input.
 func FlatMap[T1, T2 any](as []T1, f func(T1) []T2) []T2 {
 	return Concat(Map(as, f))
 }
@@ -76,7 +83,7 @@ func Filter[T any](as []T, p func(T) bool) []T {
 	id := Id[T]
 
 	//Reverse it to put the array back in original order
-	return FoldRight(xs, []T{}, id)
+	return FoldRight(xs, Zero[T](), id)
 }
 
 func Append[T any](as1, as2 []T) []T {
