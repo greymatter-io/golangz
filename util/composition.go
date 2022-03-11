@@ -1,4 +1,4 @@
-package function_composition
+package util
 
 //g after f in order of fs
 func ComposeAll[T any](fs []func(s T) T) func(s T) T {

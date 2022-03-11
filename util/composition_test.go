@@ -1,4 +1,4 @@
-package function_composition
+package util
 
 import (
 	"github.com/mikejlong60/golangz/arrays"

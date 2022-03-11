@@ -1,10 +1,11 @@
 # Functional Programming tools in Golang that use Go 1.18 Generics.
 
 General Purpose tools
-- Generic set, filtering, Union, Intersection, Minus operations on Golang arrays
+- Generic Set operations on Golang arrays: filtering, Union, Intersection, Minus
 - Generic Linked List
 - Generic function composition
 - Generic sort
+- Generic function currying and partial application
 
 Type-Checked Properties-based testing that is based upon ScalaCheck and Haskell Quickcheck
 - Everything has strong typing thanks to Golang Generics
