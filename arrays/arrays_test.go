@@ -306,6 +306,50 @@ func TestSetMinusForStringArray(t *testing.T) {
 	}
 }
 
+func TestSetIntersection(t *testing.T) {
+	type fancy struct {
+		id string
+	}
+	arr1 := []fancy{fancy{"a"}, fancy{"b"}, fancy{"c"}, fancy{"d"}}
+	arr2 := []fancy{fancy{"a"}, fancy{"b"}}
+	equality := func(l, r fancy) bool {
+		if l.id == r.id {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	expected := []fancy{fancy{"a"}, fancy{"b"}}
+	r := SetIntersection(arr1, arr2, equality)
+	if !SetEquality(r, expected, equality) {
+		t.Errorf("expected:%v, actual:%v", expected, r)
+	}
+}
+
+func TestSetUnion(t *testing.T) {
+	type fancy struct {
+		id string
+	}
+	arr1 := []fancy{fancy{"a"}, fancy{"b"}, fancy{"c"}, fancy{"d"}}
+	arr2 := []fancy{fancy{"a"}, fancy{"b"}, fancy{"z"}}
+	equality := func(l, r fancy) bool {
+		if l.id == r.id {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	expected := []fancy{fancy{"a"}, fancy{"z"}, fancy{"b"}, fancy{"c"}, fancy{"d"}}
+
+	//	r := SetUnion(arr1, []string{""})// Note that this will not compile(type error) Yaaaa!!!!
+	r := SetUnion(arr1, arr2)
+	if !SetEquality(r, expected, equality) {
+		t.Errorf("expected:%v, actual:%v", expected, r)
+	}
+}
+
 func TestCompose(t *testing.T) {
 
 	normalizeUserDn := func(userDN string) string {

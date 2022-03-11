@@ -137,3 +137,14 @@ func SetMinus[T any](a []T, b []T, equality func(l, r T) bool) []T {
 	}
 	return result
 }
+
+func SetIntersection[T any](a []T, b []T, equality func(l, r T) bool) []T {
+	ma := SetMinus(a, b, equality)
+	mb := SetMinus(b, a, equality)
+	Append(ma, mb)
+	return SetMinus(SetUnion(a, b), SetUnion(ma, mb), equality)
+}
+
+func SetUnion[T any](a []T, b []T) []T {
+	return Append(a, b)
+}

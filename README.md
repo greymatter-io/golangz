@@ -1,17 +1,18 @@
-# Property-Based Testing and Functional Programming tools in Golang that use Go 1.18 Generics.
+# Functional Programming tools in Golang that use Go 1.18 Generics.
 
 General Purpose tools
-- Generic set operations on Golang arrays
+- Generic set, filtering, Union, Intersection, Minus operations on Golang arrays
 - Generic Linked List
 - Generic function composition
 - Generic sort
 
-A Properties-based testing library that is based upon ScalaCheck and Haskell Quickcheck
+Type-Checked Properties-based testing that is based upon ScalaCheck and Haskell Quickcheck
 - Everything has strong typing thanks to Golang Generics
-- Many different kinds of generators
-- Every generator is composable. Lots of generators are included already and new ones are compositions of existing generators.
+- Many kinds of test data generators 
+- Every generator is composable. Lots of generators are included already and new ones are easy to make as compositions of existing generators.
 - A property is composable with other properties
 - Assertions are composable with And and Or logic
+- Test Failures include the specific generated values that causes test failure as well as the last successful case.
 - Programmers can better cover the scope of all possible inputs to a test(i.e. zero values, empty things, etc).
 - Tests outcomes are reproducible
 - Programmers can eliminate a lot of code duplication and get better tests at the same time because properties-based testing uses random test data.
