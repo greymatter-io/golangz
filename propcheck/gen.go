@@ -101,7 +101,6 @@ func String(unicodeMaxSize int) func(SimpleRNG) (string, SimpleRNG) {
 		return unicodeStrings
 	}
 
-	//TODO The old AAC does not properly handle non-ASCII characters the same was as Golang.  Thus the switch below to only use US ASCII runes.
 	//latin := f(128, '\u0000')
 	arabicNumbers := f(10, '\u0030')
 	asciiLowercaseLetters := f(26, '\u0061')
