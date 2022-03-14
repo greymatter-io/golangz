@@ -21,7 +21,7 @@ Type-Checked Properties-based testing that is based upon ScalaCheck and Haskell 
 - Programmers can eliminate a lot of code duplication and get better tests at the same time because properties-based testing uses random test data.
 - Properties-based testing is useful for all sorts of tests: unit, integration, course-grained functional/system/black-box.
 
-A few properties-based testing library exist in Golang. [Gopter](https://github.com/leanovate/gopter/) is an example. This library has much less code than [Gopter](https://github.com/leanovate/gopter/) and provides a very important feature that Gopter does not, namely that all abstractions are fully composable.
+A few properties-based testing library exist in Golang. [Gopter](https://github.com/leanovate/gopter/) is an example. This library has much less code than Gopter and provides a very important feature that Gopter does not, namely that all abstractions are fully composable.
 
 ## Two Key Abstractions
 
