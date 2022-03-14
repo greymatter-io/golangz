@@ -10,7 +10,7 @@ General Purpose tools for Functional Programming
 
 Type-Checked Properties-based testing that is based upon ScalaCheck and Haskell Quickcheck
 
-- Everything has strong typing thanks to Golang Generics
+- Everything has strong typing thanks to Golang Generics.
 - Many kinds of test data generators
 - Every generator is composable. Lots of generators are included already and new ones are easy to make as compositions of existing generators.
 - A property is composable with other properties
