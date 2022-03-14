@@ -1,4 +1,4 @@
-module github.com/mikejlong60/golangz
+module github.com/greymatter-io/golangz
 
 go 1.18
 

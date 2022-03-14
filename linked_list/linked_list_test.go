@@ -2,9 +2,9 @@ package linked_list
 
 import (
 	"fmt"
+	"github.com/greymatter-io/golangz/arrays"
+	"github.com/greymatter-io/golangz/propcheck"
 	"github.com/hashicorp/go-multierror"
-	"github.com/mikejlong60/golangz/arrays"
-	"github.com/mikejlong60/golangz/propcheck"
 	"testing"
 	"time"
 )

@@ -1,7 +1,7 @@
 package util
 
 import (
-	"github.com/mikejlong60/golangz/arrays"
+	"github.com/greymatter-io/golangz/arrays"
 	"strings"
 	"testing"
 )

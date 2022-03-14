@@ -3,8 +3,8 @@ package sorting
 import (
 	"fmt"
 	"github.com/go-test/deep"
+	"github.com/greymatter-io/golangz/propcheck"
 	"github.com/hashicorp/go-multierror"
-	"github.com/mikejlong60/golangz/propcheck"
 	"sort"
 	"testing"
 	"time"
