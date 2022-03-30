@@ -11,7 +11,7 @@ import (
 
 func TestPush(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
+	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
 		"Validate Push for LinkedList  \n",
@@ -49,7 +49,7 @@ func TestPush(t *testing.T) {
 
 func TestAddLast(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
+	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
 		"Validate AddLast for LinkedList  \n",
@@ -90,7 +90,7 @@ func TestAddLast(t *testing.T) {
 
 func TestAddWhile(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 20, propcheck.ChooseInt(1, 100))
+	ge := propcheck.ChooseArray(0, 20, propcheck.ChooseInt(1, 100))
 	type resultType = []int
 
 	prop := propcheck.ForAll(ge,
@@ -144,7 +144,7 @@ func TestAddWhile(t *testing.T) {
 
 func TestTail(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
+	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
 		"Validate Tail on LinkedList  \n",
@@ -171,7 +171,7 @@ func TestTail(t *testing.T) {
 
 func TestDropAndLen(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
+	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
 
 	type fancyType struct {
 		name   string
@@ -219,7 +219,7 @@ func TestDropAndLen(t *testing.T) {
 
 func TestTailUnwind(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
+	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
 		"Validate unwinding Tail on LinkedList  \n",
@@ -265,7 +265,7 @@ func TestTailUnwind(t *testing.T) {
 
 func TestHead(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
+	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
 		"Validate Head on LinkedList \n",
@@ -303,7 +303,7 @@ func TestHead(t *testing.T) {
 
 func TestFoldRight(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
+	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
 		"Validate FoldRight LinkedList  \n",
@@ -353,7 +353,7 @@ func TestFoldRight(t *testing.T) {
 
 func TestFoldLeftAndFoldRight(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 200, propcheck.String(40))
+	ge := propcheck.ChooseArray(0, 200, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
 		"Validate FoldLeft and FoldRight of LinkedList  \n",
@@ -415,7 +415,7 @@ func TestFoldLeftAndFoldRight(t *testing.T) {
 
 func TestOrderingOfFoldLeftAndFoldRight(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 200, propcheck.String(40))
+	ge := propcheck.ChooseArray(0, 200, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
 		"Validate FoldLeft and FoldRight of LinkedList  \n",

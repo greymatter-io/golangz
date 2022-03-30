@@ -79,9 +79,9 @@ func TestForAllWithInts(t *testing.T) {
 	ExpectSuccess[int](t, result)
 }
 
-func TestForAllWithListOfListsThatFails(t *testing.T) {
+func TestForAllWithArrayOfArraysThatFails(t *testing.T) {
 	ge := ChooseInt(1, 1000)
-	ge2 := ListOfN(100, ge)
+	ge2 := ArrayOfN(100, ge)
 	rng := SimpleRNG{Seed: time.Now().Nanosecond()}
 	actual := ForAll(ge2, "Array should be longer than 9900 elements.",
 		func(xs []int) []int { return xs },
@@ -127,7 +127,7 @@ func TestAssertionOr(t *testing.T) {
 	maxListSize := 10
 	minListSize := 2
 	ge := ChooseInt(0, 1000)
-	ge2 := ChooseList(minListSize, maxListSize, ge)
+	ge2 := ChooseArray(minListSize, maxListSize, ge)
 	rng := SimpleRNG{Seed: time.Now().Nanosecond()}
 	assertion1 := func(xs []int) (bool, error) {
 		if len(xs) > minListSize {
@@ -155,7 +155,7 @@ func TestAssertionAndFailure(t *testing.T) {
 	maxListSize := 10
 	minListSize := 2
 	ge := ChooseInt(0, 1000)
-	ge2 := ChooseList(minListSize, maxListSize, ge)
+	ge2 := ChooseArray(minListSize, maxListSize, ge)
 	rng := SimpleRNG{Seed: time.Now().Nanosecond()}
 	assertion1 := func(xs []int) (bool, error) {
 		if len(xs) > minListSize {
@@ -183,7 +183,7 @@ func TestAssertionAndSuccess(t *testing.T) {
 	maxListSize := 10
 	minListSize := 2
 	ge := ChooseInt(0, 1000)
-	ge2 := ChooseList(minListSize, maxListSize, ge)
+	ge2 := ChooseArray(minListSize, maxListSize, ge)
 	rng := SimpleRNG{Seed: time.Now().Nanosecond()}
 	assertion1 := func(xs []int) (bool, error) {
 		if len(xs) < minListSize {

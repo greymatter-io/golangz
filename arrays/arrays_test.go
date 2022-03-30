@@ -11,7 +11,7 @@ import (
 
 func TestFoldRightForStrings(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
+	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
 		"Filter out all strings > than 10 characters long  \n",
@@ -47,7 +47,7 @@ func TestFoldRightForStrings(t *testing.T) {
 
 func TestFoldRightForInts(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 20, propcheck.Int())
+	ge := propcheck.ChooseArray(0, 20, propcheck.Int())
 
 	prop := propcheck.ForAll(ge,
 		"Filter out all ints > than 1000 \n",
@@ -83,7 +83,7 @@ func TestFoldRightForInts(t *testing.T) {
 
 func TestFlatMap(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(3, 10, propcheck.Int())
+	ge := propcheck.ChooseArray(3, 10, propcheck.Int())
 
 	prop := propcheck.ForAll(ge,
 		"Test Flatmap turns an array of ints into a larger sized array of strings because FlatMap let's you remove a layer from the given array.\n",
@@ -126,7 +126,7 @@ func TestFlatMap(t *testing.T) {
 
 func TestConcatArrayOfArrays(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 20, propcheck.ListOfN(10, propcheck.Int()))
+	ge := propcheck.ChooseArray(0, 20, propcheck.ArrayOfN(10, propcheck.Int()))
 
 	prop := propcheck.ForAll(ge,
 		"Test Concat that flattens an array of arrays by 1 level and preserves order\"  \n",
@@ -165,7 +165,7 @@ func TestConcatArrayOfArrays(t *testing.T) {
 
 func TestMapForStrings(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 20, propcheck.String(40))
+	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
 
 	prop := propcheck.ForAll(ge,
 		"Make the strings all uppercase  \n",

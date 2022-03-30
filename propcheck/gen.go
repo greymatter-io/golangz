@@ -166,8 +166,8 @@ func Boolean() func(SimpleRNG) (bool, SimpleRNG) {
 	return Map(NonNegativeInt, fa)
 }
 
-//Generates A list of N elements from the given generator
-func ListOfN[T any](n int, g func(SimpleRNG) (T, SimpleRNG)) func(SimpleRNG) ([]T, SimpleRNG) {
+//Generates an array of N elements from the given generator
+func ArrayOfN[T any](n int, g func(SimpleRNG) (T, SimpleRNG)) func(SimpleRNG) ([]T, SimpleRNG) {
 	var s []func(SimpleRNG) (T, SimpleRNG)
 	for x := 0; x < n; x++ {
 		s = append(s, g)
@@ -176,14 +176,14 @@ func ListOfN[T any](n int, g func(SimpleRNG) (T, SimpleRNG)) func(SimpleRNG) ([]
 	return u
 }
 
-//Generates A list with A size in the indicated range using the given Gen
-func ChooseList[T any](start, stopInclusive int, kind func(SimpleRNG) (T, SimpleRNG)) func(SimpleRNG) ([]T, SimpleRNG) {
+//Generates an array with A size in the indicated range using the given Gen
+func ChooseArray[T any](start, stopInclusive int, kind func(SimpleRNG) (T, SimpleRNG)) func(SimpleRNG) ([]T, SimpleRNG) {
 	return func(rng SimpleRNG) ([]T, SimpleRNG) {
 		if start < 0 || start > stopInclusive {
 			panic(fmt.Sprintf("Low range[%v] was < 0 or exceeded the high range[%v]", start, stopInclusive))
 		}
 		i, _ := ChooseInt(start, stopInclusive)(rng)
-		r, rng2 := ListOfN(i, kind)(rng)
+		r, rng2 := ArrayOfN(i, kind)(rng)
 		return r, rng2
 	}
 }
