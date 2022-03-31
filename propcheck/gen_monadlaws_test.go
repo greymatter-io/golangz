@@ -19,9 +19,9 @@ func assoc(ab Pair[[]int, Pair[[]int, []int]]) Pair[Pair[[]int, []int], []int] {
 //Note l and r below, the way I change the nesting.
 func TestMapAssociativeLaw(t *testing.T) {
 	ge := ChooseInt(0, 1000)
-	fa := ChooseList(0, 10, ge)
-	fb := ChooseList(11, 20, ge)
-	fc := ChooseList(21, 30, ge)
+	fa := ChooseArray(0, 10, ge)
+	fb := ChooseArray(11, 20, ge)
+	fc := ChooseArray(21, 30, ge)
 	rng := SimpleRNG{Seed: time.Now().Nanosecond()}
 	l1 := Product(fa, fb)
 	l2 := Product(l1, fc)

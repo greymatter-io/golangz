@@ -50,7 +50,7 @@ func Tail[T any](l *LinkedList[T]) (*LinkedList[T], error) {
 	}
 }
 
-//TODO Head of Nil list will throw a NPE. Fix this
+// TODO Head of Nil list will throw a NPE. Fix this
 func Head[T any](l *LinkedList[T]) T {
 	return l.head
 }
@@ -79,13 +79,13 @@ func internalAddWhile[T any](l *LinkedList[T], r *LinkedList[T], p func(T) bool)
 	}
 }
 
-//Evaluates elements of given list, adding elements to head of a new list until predicate returns false, returning the new list and preserving ordering of original list.
-//Note that this is different than filter. The algorithm stops appending to the resulting list when the predicate returns false.
+// Evaluates elements of given list, adding elements to head of a new list until predicate returns false, returning the new list and preserving ordering of original list.
+// Note that this is different than filter. The algorithm stops appending to the resulting list when the predicate returns false.
 func AddWhile[T any](l *LinkedList[T], p func(T) bool) *LinkedList[T] {
 	return internalAddWhile(l, Zero[T](), p)
 }
 
-//Evaluates elements of given list and filters out those elements which fail predicate, preserving order of original list.
+// Evaluates elements of given list and filters out those elements which fail predicate, preserving order of original list.
 func Filter[T any](l *LinkedList[T], p func(T) bool) *LinkedList[T] {
 	var g = func(h T, accum *LinkedList[T]) *LinkedList[T] {
 		if p(h) {

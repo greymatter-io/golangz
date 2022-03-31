@@ -151,12 +151,12 @@ func TestThatMap2IsContextSensitive(t *testing.T) {
 	ExpectSuccess[Pair[int, int]](t, result)
 }
 
-func TestListOfNWithForAll(t *testing.T) {
+func TestArrayOfNWithForAll(t *testing.T) {
 	start := 1
 	endExclusive := 5
 	rSize := 1000
 	rng := SimpleRNG{time.Now().Nanosecond()}
-	u := ListOfN(rSize, ChooseInt(1, 5))
+	u := ArrayOfN(rSize, ChooseInt(1, 5))
 	correctLength := ForAll(u, fmt.Sprintf("Array must have A length of %v \n", rSize),
 		func(xs []int) []int {
 			return xs
@@ -218,7 +218,7 @@ func TestWeightedFailureLastSuccessCase(t *testing.T) {
 	l := []WeightedGen[int]{{Gen: r1, Weight: 200}, {Gen: r2, Weight: 10}}
 
 	ge2 := Weighted(l)
-	list := ChooseList(minListSize, maxListSize, ge2)
+	list := ChooseArray(minListSize, maxListSize, ge2)
 
 	lengthInRange := ForAll(list, fmt.Sprintf("Weighted should have produced A list with size between %v and %v inclusive", minListSize, maxListSize),
 		func(x []int) []int {
@@ -262,9 +262,9 @@ func TestWeighted(t *testing.T) {
 	ExpectSuccess[int](t, test.Run(RunParms{200, rng}))
 }
 
-func TestChooseListWillProduceListOfZeroElements(t *testing.T) {
+func TestChooseArrayWillProduceListOfZeroElements(t *testing.T) {
 	ge := ChooseInt(0, 1000)
-	ge2 := ChooseList(0, 0, ge)
+	ge2 := ChooseArray(0, 0, ge)
 	rng := SimpleRNG{Seed: time.Now().Nanosecond()}
 	lengthZero := ForAll(ge2, "List must have A length of zero",
 		func(xs []int) []int {
@@ -282,11 +282,11 @@ func TestChooseListWillProduceListOfZeroElements(t *testing.T) {
 	ExpectSuccess[[]int](t, result)
 }
 
-func TestChooseListWillProduceListOfAtLeastMinElementsAndNotMoreThanHighRange(t *testing.T) {
+func TestChooseArrayWillProduceListOfAtLeastMinElementsAndNotMoreThanHighRange(t *testing.T) {
 	maxListSize := 10
 	minListSize := 2
 	ge := ChooseInt(0, 1000)
-	ge2 := ChooseList(minListSize, maxListSize, ge)
+	ge2 := ChooseArray(minListSize, maxListSize, ge)
 	rng := SimpleRNG{Seed: time.Now().Nanosecond()}
 	lengthGEOne := ForAll(ge2, fmt.Sprintf("List must have at least A length of %v \n", minListSize),
 		func(xs []int) []int {
@@ -313,27 +313,4 @@ func TestChooseListWillProduceListOfAtLeastMinElementsAndNotMoreThanHighRange(t 
 	bigProp := And[[]int](lengthGEOne, lengthLEMax)
 	result := bigProp.Run(RunParms{200, rng})
 	ExpectSuccess[[]int](t, result)
-}
-
-func TestListOfNWillProduceListConsistingOfDifferentValues(t *testing.T) {
-	listSize := 20
-	ge2 := ListOfN(listSize, String(40))
-	rng := SimpleRNG{Seed: time.Now().Nanosecond()}
-	prop := ForAll(ge2, fmt.Sprintf("List of strings contained duplicate strings %v \n", listSize),
-		func(xs []string) []string {
-			return xs
-		},
-		func(xss []string) (bool, error) {
-			var last string
-			for _, v := range xss {
-				if last == v && len(last) > 0 {
-					return false, fmt.Errorf("list of strings contained a duplicate, possible but extremmely unlikely")
-				}
-				last = v
-			}
-			return true, nil
-		},
-	)
-	result := prop.Run(RunParms{200, rng})
-	ExpectSuccess[[]string](t, result)
 }

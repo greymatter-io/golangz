@@ -12,7 +12,7 @@ import (
 
 func TestQuickSortWithInts(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 20000, propcheck.Int())
+	ge := propcheck.ChooseArray(0, 20000, propcheck.Int())
 
 	lessThan := func(l, r int) bool {
 		if l < r {
@@ -58,7 +58,7 @@ func TestQuickSortWithInts(t *testing.T) {
 
 func TestQuickSortWithStrings(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseList(0, 20000, propcheck.String(20))
+	ge := propcheck.ChooseArray(0, 20000, propcheck.String(20))
 
 	lessThan := func(l, r string) bool {
 		if l < r {

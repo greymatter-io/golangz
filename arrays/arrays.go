@@ -1,6 +1,6 @@
 package arrays
 
-//TODO make FoldLeft so you don't have to reverse the array at the end. Just like your linked list.
+// TODO make FoldLeft so you don't have to reverse the array at the end. Just like your linked list.
 func FoldRight[T1, T2 any](as []T1, z T2, f func(T1, T2) T2) T2 {
 	if len(as) > 1 { //Slice has a head and a tail.
 		h, t := as[0], as[1:len(as)]
@@ -26,7 +26,7 @@ func Reverse[T1 any](xs []T1) []T1 {
 	return FoldRight(xs, Zero[T1](), f)
 }
 
-//A structure-preserving Functor on the given array of T.
+// A structure-preserving Functor on the given array of T.
 func Map[T1, T2 any](as []T1, f func(T1) T2) []T2 {
 	g := func(s T1, as []T2) []T2 {
 		gss := append(as, f(s))
@@ -46,8 +46,8 @@ func Concat[A any](l [][]A) []A {
 	return FoldRight(Reverse(l), Zero[A](), g)
 }
 
-//Similar to Map in that it takes an array of T1 and applies a function to each element.
-//But FlatMap is more powerful than map. We can use flatMap to generate a collection that is either larger or smaller than the original input.
+// Similar to Map in that it takes an array of T1 and applies a function to each element.
+// But FlatMap is more powerful than map. We can use flatMap to generate a collection that is either larger or smaller than the original input.
 func FlatMap[T1, T2 any](as []T1, f func(T1) []T2) []T2 {
 	return Concat(Map(as, f))
 }
@@ -64,7 +64,7 @@ func Filter[T any](as []T, p func(T) bool) []T {
 
 	f := Appender[T]
 
-	//Reverse it to put the array back in original order
+	// Reverse it to put the array back in original order
 	return FoldRight(xs, Zero[T](), f)
 }
 
@@ -104,7 +104,7 @@ func SetEquality[T any](aa []T, bb []T, equality func(l, r T) bool) bool {
 	return (aa == nil && bb == nil) || (len(aa) == 0 && bb == nil) || (aa == nil && len(bb) == 0) || (len(aa) == 0 && len(bb) == 0) || (ContainsAllOf(aa, bb, equality) && ContainsAllOf(bb, aa, equality))
 }
 
-//Returns the set 'a' minus set 'b'
+// Returns the set 'a' minus set 'b'
 func SetMinus[T any](a []T, b []T, equality func(l, r T) bool) []T {
 	var result []T
 	for _, v := range a {
@@ -115,14 +115,14 @@ func SetMinus[T any](a []T, b []T, equality func(l, r T) bool) []T {
 	return result
 }
 
-//Returns the intersection of set 'a' and 'b'
+// Returns the intersection of set 'a' and 'b'
 func SetIntersection[T any](a []T, b []T, equality func(l, r T) bool) []T {
 	ma := SetMinus(a, b, equality)
 	mb := SetMinus(b, a, equality)
 	return SetMinus(SetUnion(a, b), SetUnion(ma, mb), equality)
 }
 
-//Returns the set union of set 'a' and 'b'
+// Returns the set union of set 'a' and 'b'
 func SetUnion[T any](a []T, b []T) []T {
 	return Append(a, b)
 }

@@ -1,6 +1,6 @@
 package util
 
-//g after f in order of fs
+// g after f in order of fs
 func ComposeAll[T any](fs []func(s T) T) func(s T) T {
 	var g = func(s T) T {
 		return s
@@ -12,7 +12,7 @@ func ComposeAll[T any](fs []func(s T) T) func(s T) T {
 	return g
 }
 
-//f after g
+// f after g
 func Compose[T any](f, g func(s T) T) func(s T) T {
 	return func(s T) T {
 		return f(g(s))
