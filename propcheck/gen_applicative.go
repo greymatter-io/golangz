@@ -19,9 +19,8 @@ func Product[A, B any](fa func(SimpleRNG) (A, SimpleRNG), fb func(SimpleRNG) (B,
 	return g
 }
 
-//MapN are the functions that make this an Applicative Functor. These functions allow you to compose generators without the context-sensitivity that you get with FlatMap.
-//A good example of this is validation where you don't want the computation to stop because A Flatmap in the chain fails.
-//This is the original version of Map2
+// MapN are the functions that make this an Applicative Functor. These functions allow you to compose generators without the context-sensitivity that you get with FlatMap.
+// A good example of this is validation where you don't want the computation to stop because A Flatmap in the chain fails.
 func pMap2[A, B, C any](ra func(SimpleRNG) (A, SimpleRNG), rb func(SimpleRNG) (B, SimpleRNG), f func(a A, b B) C) func(rng SimpleRNG) (C, SimpleRNG) {
 	return func(rng SimpleRNG) (C, SimpleRNG) {
 		a, r1 := ra(rng)

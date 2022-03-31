@@ -8,7 +8,7 @@ func qs(l, r int, partition func(l, r, pivot int) int) {
 	}
 }
 
-//This is a generic Quicksort.  You only need to pass in a predicate function that tells whether or not l is less than r.
+// This is a generic Quicksort.  You only need to pass in a predicate function that tells whether or not l is less than r.
 func QuickSort[T any](xs []T, lessThan func(l, r T) bool) []T {
 	arr := xs
 	swap := func(x, y int) {

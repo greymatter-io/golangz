@@ -53,7 +53,7 @@ func (f Passed[A]) IsFalsified() bool {
 	return false
 }
 
-//This is a lazily evaluated And that composes two properties.
+// This is a lazily evaluated And that combines two properties.
 func And[A any](p1, p2 Prop) Prop {
 	run := func(n RunParms) Result {
 		r := p1.Run(n)
@@ -66,7 +66,7 @@ func And[A any](p1, p2 Prop) Prop {
 	return Prop{run, p1.Name}
 }
 
-//This is a lazily evaluated Or that composes two properties.
+// This is a lazily evaluated Or that combines two properties.
 func Or[A any](p1, p2 Prop) Prop {
 	run := func(n RunParms) Result {
 		r := p1.Run(n)
@@ -158,9 +158,9 @@ func ExpectFailure[A any](t *testing.T, result Result) {
 	}
 }
 
-//Combines a list of assertion functions of type "func(A) (bool, error)" into a single new function that returns their logical OR.
-//Note that like Prop.Or above it evaluates lazily.  As soon as a true function is encountered it returns.
-//Otherwise it returns all the accumulated errors.
+// Combines a list of assertion functions of type "func(A) (bool, error)" into a single new function that returns their logical OR.
+// Note that like Prop.Or above it evaluates lazily.  As soon as a true function is encountered it returns.
+// Otherwise it returns all the accumulated errors.
 func AssertionOr[A any](assertions ...func(A) (bool, error)) func(A) (bool, error) {
 	return func(b A) (bool, error) {
 		var errors error
@@ -178,8 +178,8 @@ func AssertionOr[A any](assertions ...func(A) (bool, error)) func(A) (bool, erro
 	}
 }
 
-//Combines a list of assertion functions of type "func(A) (bool, error)" into a new function that returns their logical AND
-//Note that like Prop.And above it evaluates lazily.   Branches are evaluated only until one fails.
+// Combines a list of assertion functions of type "func(A) (bool, error)" into a new function that returns their logical AND
+// Note that like Prop.And above it evaluates lazily.   Branches are evaluated only until one fails.
 func AssertionAnd[A any](assertions ...func(A) (bool, error)) func(A) (bool, error) {
 	return func(b A) (bool, error) {
 		var errors error
