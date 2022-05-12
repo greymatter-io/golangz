@@ -9,6 +9,57 @@ import (
 	"time"
 )
 
+func TestFoldLeftMatrixSum(t *testing.T) {
+	matrixSumWithFoldLeft := func(source []int) [][]int64 {
+		var inner [][]int64
+		var append = func(xs [][]int64, x int) [][]int64 {
+			var result = make([]int64, 2)
+			currentX := int64(x)
+			result[0] = currentX
+			currentAccumLen := len(xs)
+			if currentAccumLen == 0 { //Set first sum to first element value
+				result[1] = currentX
+			} else { //Just grab previous sum
+				result[1] = xs[currentAccumLen-1][1] + currentX
+			}
+			xs = append(xs, result)
+			return xs
+		}
+		result := FoldLeft(source, inner, append)
+		return result
+	}
+
+	g0 := propcheck.ChooseInt(1, 3000)
+	g1 := propcheck.ChooseArray(0, 10000, g0)
+	now := time.Now().Nanosecond()
+	rng := propcheck.SimpleRNG{now}
+	prop := propcheck.ForAll(g1,
+		"Validate FoldLeft works and does not change order of resulting array. \n",
+		func(xs []int) propcheck.Pair[[][]int64, []int] {
+			r := matrixSumWithFoldLeft(xs)
+			return propcheck.Pair[[][]int64, []int]{r, xs}
+		},
+		func(p propcheck.Pair[[][]int64, []int]) (bool, error) {
+			xss := p.A
+			xs := p.B
+			var errors error
+			for i := 1; i < len(xss); i++ {
+				last := xss[i-1][1]
+				if xss[i][1] < last || xss[i][0] != int64(xs[i]) {
+					errors = multierror.Append(errors, fmt.Errorf("Array element sum[%v] should not have been less than previous accumulated value", xss[i][1]))
+				}
+			}
+			if errors != nil {
+				return false, errors
+			} else {
+				return true, nil
+			}
+		},
+	)
+	result := prop.Run(propcheck.RunParms{100, rng})
+	propcheck.ExpectSuccess[[]int](t, result)
+}
+
 func TestFoldRightForStrings(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
 	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
