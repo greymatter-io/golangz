@@ -122,7 +122,9 @@ func TestMakeSet(t *testing.T) {
 ```
 
 ## Initializing Project
+    Project requires go 1.18.
+    From root of project.
 
-- `go1.18rc1 mod init pkg`
-- `go1.18rc1 mod tidy`
-- `go1.18rc1 test -v -count=1 ./...`
+- `go mod init`
+- `go mod tidy`
+- `go test -v -count=1 ./...`
