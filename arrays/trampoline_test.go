@@ -32,7 +32,7 @@ func thunkFib(n int64, prev int64, curr int64) (int64, thunkType) {
 
 //TODO Add trampolining to FoldLeft
 //TODO Investigate use heuristic the Golang standard library uses to decide the way to do a sort based upon the size of the array.  For Folds with small array sizes it is more efficient not to do the thunkk thing.
-//TODO Apply heap-safe FoldLeft to FOldRight and then reverse.  Think about heuristic above for this.
+//TODO Apply heap-safe FoldLeft to FoldRight and then reverse.  Think about heuristic above for this.
 //TODO Review with Rob and Ming
 func trampoline(fn fnType) func(int64) int64 {
 	st := new(runtime.MemStats)
@@ -51,7 +51,7 @@ func trampoline(fn fnType) func(int64) int64 {
 }
 
 func TestTrampoline(t *testing.T) {
-	n := int64(20000000000) // fib(10) == 55
+	n := int64(200) // fib(10) == 55
 	fib := trampoline(thunkFib)
 	fmt.Printf("Fibonacci(%d) = %d\n", n, fib(n))
 }

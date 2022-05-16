@@ -67,3 +67,97 @@ func TestMap4WithInt(t *testing.T) {
 		t.Errorf("Map4 should have summed A  + (B  - c) + d to 26 but resulted in %v \n", actual)
 	}
 }
+
+func TestMap32AndBySurrogateMap16AndMap8(t *testing.T) {
+	rng := SimpleRNG{time.Now().Nanosecond()}
+	type goose struct {
+		a  int
+		b  int64
+		c  string
+		d  time.Time
+		e  bool
+		f  int
+		g  int64
+		h  string
+		i  time.Time
+		j  int
+		k  int64
+		l  string
+		m  time.Time
+		n  bool
+		o  string
+		p  int
+		q  int64
+		r  string
+		s  time.Time
+		t  int
+		u  int64
+		v  string
+		w  time.Time
+		x  bool
+		y  int
+		z  int64
+		aa string
+		bb time.Time
+		cc string
+		dd time.Time
+		ee string
+		ff time.Time
+	}
+
+	d := time.Now()
+	i := d.Add(1)
+	m := i.Add(1)
+	s := m.Add(1)
+	w := s.Add(1)
+	bb := w.Add(1)
+	dd := bb.Add(1)
+	ff := dd.Add(1)
+
+	expected := goose{
+		12, int64(13), "14", d, true, 12, int64(13), "14", i, 12, int64(13), "14", m, true, "ro", 12, int64(13), "14", s, 12,
+		int64(13), "14", w, false, 12, int64(13), "14", bb, "14", dd, "14", ff,
+	}
+
+	ra := Id(12)
+	rb := Id(int64(13))
+	rc := Id("14")
+	rd := Id(d)
+	re := Id(true)
+	rf := Id(12)
+	rg := Id(int64(13))
+	rh := Id("14")
+	ri := Id(i)
+	rj := Id(12)
+	rk := Id(int64(13))
+	rl := Id("14")
+	rm := Id(m)
+	rn := Id(true)
+	ro := Id("ro")
+	rp := Id(12)
+	rq := Id(int64(13))
+	rr := Id("14")
+	rs := Id(s)
+	rt := Id(12)
+	ru := Id(int64(13))
+	rv := Id("14")
+	rw := Id(w)
+	rx := Id(false)
+	ry := Id(12)
+	rz := Id(int64(13))
+	raa := Id("14")
+	rbb := Id(bb)
+	rcc := Id("14")
+	rdd := Id(dd)
+	ree := Id("14")
+	rff := Id(ff)
+
+	f := func(a int, b int64, c string, d time.Time, e bool, f int, g int64, h string, i time.Time, j int, k int64, l string, m time.Time, n bool, o string, p int, q int64, r string, s time.Time, t int, u int64, v string, w time.Time, x bool, y int, z int64, aa string, bb time.Time, cc string, dd time.Time, ee string, ff time.Time) goose {
+		return goose{a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, aa, bb, cc, dd, ee, ff}
+	}
+	res := Map32(ra, rb, rc, rd, re, rf, rg, rh, ri, rj, rk, rl, rm, rn, ro, rp, rq, rr, rs, rt, ru, rv, rw, rx, ry, rz, raa, rbb, rcc, rdd, ree, rff, f)
+	actual, _ := res(rng)
+	if actual != expected {
+		t.Errorf("Map32 did not map correctly \nactual:  %v\nexpected:%v\n", actual, expected)
+	}
+}
