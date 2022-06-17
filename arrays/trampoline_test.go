@@ -27,6 +27,8 @@ func thunk[T1, T2 any](fn fnType[T1, T2], n T1, u T2) thunkType[T1, T2] {
 func thunkFib[T1, T2 any](n T1, u T2) (T1, thunkType[T1, T2]) {
 	// since we return another thunk, the int result does not matter
 	fmt.Printf("in thunkFib:n:%v u:%v\n", n, u)
+	fmt.Printf("Trampoline Counter2:%v\n", trampolineCounter)
+
 	return n /* unused */, thunk[T1, T2](thunkFib[T1, T2], n, u)
 }
 
@@ -34,9 +36,13 @@ func thunkFib[T1, T2 any](n T1, u T2) (T1, thunkType[T1, T2]) {
 //TODO Investigate use heuristic the Golang standard library uses to decide the way to do a sort based upon the size of the array.  For Folds with small array sizes it is more efficient not to do the thunkk thing.
 //TODO Apply heap-safe FoldLeft to FoldRight and then reverse.  Think about heuristic above for this.
 //TODO Review with Rob and Ming
+var trampolineCounter = 0
+
 func trampoline[T1, T2 any](fn fnType[T1, T2]) func(T1, T2) T1 {
 	st := new(runtime.MemStats)
+	trampolineCounter++
 	return func(n T1, u T2) T1 {
+		fmt.Printf("Trampoline Counter:%v\n", trampolineCounter)
 		result, f := fn(n, u) // initial values for aggregators
 		for {
 			if f == nil {
