@@ -8,36 +8,36 @@ import (
 
 // parameters are n, prev, and current
 // return either the result (int) or a thunkType if not done
-type fnType func(int64, int64, int64) (int64, thunkType)
+//func FoldLeft[T1, T2 any](as []T1, z T2, f func(T2, T1) T2) T2 {
+
+type fnType[T1, T2 any] func(T1, T2) (T1, thunkType[T1, T2])
 
 // return either the result (int) or another thunk
-type thunkType func() (int64, thunkType)
+type thunkType[T1, T2 any] func() (T1, thunkType[T1, T2])
 
-func thunk(fn fnType, n int64, prev int64, curr int64) thunkType {
-	return func() (int64, thunkType) {
-		return fn(n, prev, curr)
+func thunk[T1, T2 any](fn fnType[T1, T2], n T1, u T2) thunkType[T1, T2] {
+	return func() (T1, thunkType[T1, T2]) {
+		a, b := fn(n, u)
+		fmt.Printf("a in thunk funtion:%v\n", a)
+		fmt.Printf("b in thunk funtion:%v\n", b)
+		return a, b //fn(n, u)
 	}
 }
 
-func thunkFib(n int64, prev int64, curr int64) (int64, thunkType) {
-	if n == 0 {
-		return prev, nil
-	}
-	if n == 1 {
-		return curr, nil
-	}
+func thunkFib[T1, T2 any](n T1, u T2) (T1, thunkType[T1, T2]) {
 	// since we return another thunk, the int result does not matter
-	return 0 /* unused */, thunk(thunkFib, n-1, curr, curr+prev)
+	fmt.Printf("in thunkFib:n:%v u:%v\n", n, u)
+	return n /* unused */, thunk[T1, T2](thunkFib[T1, T2], n, u)
 }
 
 //TODO Add trampolining to FoldLeft
 //TODO Investigate use heuristic the Golang standard library uses to decide the way to do a sort based upon the size of the array.  For Folds with small array sizes it is more efficient not to do the thunkk thing.
 //TODO Apply heap-safe FoldLeft to FoldRight and then reverse.  Think about heuristic above for this.
 //TODO Review with Rob and Ming
-func trampoline(fn fnType) func(int64) int64 {
+func trampoline[T1, T2 any](fn fnType[T1, T2]) func(T1, T2) T1 {
 	st := new(runtime.MemStats)
-	return func(n int64) int64 {
-		result, f := fn(n, 0, 1) // initial values for aggregators
+	return func(n T1, u T2) T1 {
+		result, f := fn(n, u) // initial values for aggregators
 		for {
 			if f == nil {
 				break
@@ -52,6 +52,7 @@ func trampoline(fn fnType) func(int64) int64 {
 
 func TestTrampoline(t *testing.T) {
 	n := int64(200) // fib(10) == 55
-	fib := trampoline(thunkFib)
-	fmt.Printf("Fibonacci(%d) = %d\n", n, fib(n))
+	u := []int{1, 2, 3}
+	fib := trampoline(thunkFib[int64, []int])
+	fmt.Printf("Fibonacci(%d) = %d\n", n, fib(n, u))
 }

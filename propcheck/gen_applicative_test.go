@@ -67,6 +67,36 @@ func TestMap4WithInt(t *testing.T) {
 		t.Errorf("Map4 should have summed A  + (B  - c) + d to 26 but resulted in %v \n", actual)
 	}
 }
+func TestMap32WithALotOfFunctionComposition(t *testing.T) {
+	rng := SimpleRNG{time.Now().Nanosecond()}
+	ra := String(10)
+	rb := String(20)
+	rc := String(1)
+	rd := String(2)
+	re := String(15)
+	rf := String(100)
+	l1 := []WeightedGen[string]{
+		{Gen: ra, Weight: 300}, {Gen: rb, Weight: 10}, {Gen: rc, Weight: 300}, {Gen: rd, Weight: 10}, {Gen: re, Weight: 300}, {Gen: rf, Weight: 10},
+		{Gen: ra, Weight: 300}, {Gen: rb, Weight: 10}, {Gen: rc, Weight: 300}, {Gen: rd, Weight: 10}, {Gen: re, Weight: 300}, {Gen: rf, Weight: 10},
+		{Gen: ra, Weight: 300}, {Gen: rb, Weight: 10}, {Gen: rc, Weight: 300}, {Gen: rd, Weight: 10}, {Gen: re, Weight: 300}, {Gen: rf, Weight: 10},
+		{Gen: ra, Weight: 300}, {Gen: rb, Weight: 10}, {Gen: rc, Weight: 300}, {Gen: rd, Weight: 10}, {Gen: re, Weight: 300}, {Gen: rf, Weight: 10},
+		{Gen: ra, Weight: 300}, {Gen: rb, Weight: 10}, {Gen: rc, Weight: 300}, {Gen: rd, Weight: 10}, {Gen: re, Weight: 300}, {Gen: rf, Weight: 10},
+		{Gen: ra, Weight: 300}, {Gen: rb, Weight: 10}, {Gen: rc, Weight: 300}, {Gen: rd, Weight: 10}, {Gen: re, Weight: 300}, {Gen: rf, Weight: 10},
+	}
+	f := func(a, b, c, d, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, aa, bb, cc, dd, ee, ff, gg string) string {
+		return gg
+	}
+	res := Map32(Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), Weighted(l1), f)
+
+	actual := ForAll(res, "Map32 with lots of function composition",
+		func(x string) string { return x },
+		func(x string) (bool, error) {
+			return true, nil
+		},
+	)
+	result := actual.Run(RunParms{100, rng})
+	ExpectSuccess[string](t, result)
+}
 
 func TestMap32AndBySurrogateMap16AndMap8(t *testing.T) {
 	rng := SimpleRNG{time.Now().Nanosecond()}
