@@ -6,59 +6,57 @@ import (
 	"testing"
 )
 
-// parameters are n, prev, and current
-// return either the result (int) or a thunkType if not done
-//func FoldLeft[T1, T2 any](as []T1, z T2, f func(T2, T1) T2) T2 {
+type fTypeFoldl func([]int, int, func(int, int) int) (int, tTypeFoldl)
+type tTypeFoldl func() (int, tTypeFoldl)
 
-type fnType[T1, T2 any] func(T1, T2) (T1, thunkType[T1, T2])
+var st = new(runtime.MemStats)
 
-// return either the result (int) or another thunk
-type thunkType[T1, T2 any] func() (T1, thunkType[T1, T2])
-
-func thunk[T1, T2 any](fn fnType[T1, T2], n T1, u T2) thunkType[T1, T2] {
-	return func() (T1, thunkType[T1, T2]) {
-		a, b := fn(n, u)
-		fmt.Printf("a in thunk funtion:%v\n", a)
-		fmt.Printf("b in thunk funtion:%v\n", b)
-		return a, b //fn(n, u)
-	}
-}
-
-func thunkFib[T1, T2 any](n T1, u T2) (T1, thunkType[T1, T2]) {
-	// since we return another thunk, the int result does not matter
-	fmt.Printf("in thunkFib:n:%v u:%v\n", n, u)
-	fmt.Printf("Trampoline Counter2:%v\n", trampolineCounter)
-
-	return n /* unused */, thunk[T1, T2](thunkFib[T1, T2], n, u)
-}
-
-//TODO Add trampolining to FoldLeft
-//TODO Investigate use heuristic the Golang standard library uses to decide the way to do a sort based upon the size of the array.  For Folds with small array sizes it is more efficient not to do the thunkk thing.
-//TODO Apply heap-safe FoldLeft to FoldRight and then reverse.  Think about heuristic above for this.
-//TODO Review with Rob and Ming
-var trampolineCounter = 0
-
-func trampoline[T1, T2 any](fn fnType[T1, T2]) func(T1, T2) T1 {
-	st := new(runtime.MemStats)
-	trampolineCounter++
-	return func(n T1, u T2) T1 {
-		fmt.Printf("Trampoline Counter:%v\n", trampolineCounter)
-		result, f := fn(n, u) // initial values for aggregators
-		for {
-			if f == nil {
-				break
-			}
-			result, f = f()
-			runtime.ReadMemStats(st)
-			fmt.Printf("\nMemstat HeapObjects:%v\n", st.HeapObjects)
+func TrampolineFoldLeft(as []int, z int, f func(int, int) int) int {
+	accum, p := foldL(as, z, f)
+	for {
+		if p == nil {
+			break
 		}
-		return result
+		accum, p = p()
+	}
+	return accum
+}
+
+func thunk(fn fTypeFoldl, as []int, z int, f func(int, int) int) tTypeFoldl {
+	g := func() (int, tTypeFoldl) {
+		a, b := fn(as, z, f)
+		return a, b
+	}
+	return g
+}
+func foldL(as []int, z int, f func(int, int) int) (int, tTypeFoldl) {
+	if len(as) > 1 { //Slice has a head and a tail.
+		h, t := as[0], as[1:]
+		zz := f(z, h)
+		return zz, thunk(foldL, t, zz, sum)
+	} else if len(as) == 1 { //Slice has a head and an empty tail.
+		h := as[0]
+		zz := f(z, h)
+		return zz, thunk(foldL, Zero[int](), zz, sum)
+	} else { //Causes the calling Trampoline to leave the for loop with the final accum result
+		return z, nil
 	}
 }
 
-func TestTrampoline(t *testing.T) {
-	n := int64(200) // fib(10) == 55
-	u := []int{1, 2, 3}
-	fib := trampoline(thunkFib[int64, []int])
-	fmt.Printf("Fibonacci(%d) = %d\n", n, fib(n, u))
+var sum = func(z int, x int) int {
+	return z + x
+}
+
+func TestTrampolineFoldLeft(t *testing.T) {
+	//var massiveArr = make([]int, 1000000000)
+	//for i := 0; i < 1000000000; i++ {
+	//	massiveArr[i] = i
+	//}
+	massiveArr := []int{1, 2, 3, 4}
+	fmt.Println("Done making big array")
+	actual := TrampolineFoldLeft(massiveArr, 0, sum)
+	if actual != 10 {
+		t.Errorf("expected:%v, actual:%v", 10, actual)
+	}
+
 }
