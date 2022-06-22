@@ -12,17 +12,45 @@ func FoldRight[T1, T2 any](as []T1, z T2, f func(T1, T2) T2) T2 {
 	return z
 }
 
+type fTypeFoldl[T1, T2 any] func([]T1, T2, func(T2, T1) T2) (T2, tTypeFoldl[T2])
+type tTypeFoldl[T2 any] func() (T2, tTypeFoldl[T2])
+
+//This is a stack-safe, tail recursive, pure function that uses the trampoline technique to ensure that the runtime
+//does not face recursion that is too deep(i.e. The garbage collector will run before the recursion gets deep enough to blow the stack).
+//See https://trinetri.wordpress.com/2015/04/28/tail-call-thunks-and-trampoline-in-golang/
+//A tail call is a function call that is the last action performed in a function.
 //The efficiency of this algorithm is O(N) and it does not reverse the list like FoldRight does.
-//TODO Make this function tail-recursive
+//Most of the other array functions in this package use FoldLeft and thus all are stack-safe.
 func FoldLeft[T1, T2 any](as []T1, z T2, f func(T2, T1) T2) T2 {
+	accum, p := foldL(as, z, f)
+	for {
+		if p == nil {
+			break
+		}
+		accum, p = p()
+	}
+	return accum
+}
+
+func thunk[T1, T2 any](fn fTypeFoldl[T1, T2], as []T1, z T2, f func(T2, T1) T2) tTypeFoldl[T2] {
+	g := func() (T2, tTypeFoldl[T2]) {
+		a, b := fn(as, z, f)
+		return a, b
+	}
+	return g
+}
+func foldL[T1, T2 any](as []T1, z T2, f func(T2, T1) T2) (T2, tTypeFoldl[T2]) {
 	if len(as) > 1 { //Slice has a head and a tail.
-		h, t := as[0], as[1:len(as)]
-		return FoldLeft(t, f(z, h), f)
+		h, t := as[0], as[1:]
+		zz := f(z, h)
+		return zz, thunk(foldL[T1, T2], t, zz, f)
 	} else if len(as) == 1 { //Slice has a head and an empty tail.
 		h := as[0]
-		return FoldLeft(Zero[T1](), f(z, h), f)
+		zz := f(z, h)
+		return zz, thunk(foldL[T1, T2], Zero[T1](), zz, f)
+	} else { //Causes the stack-safe funtion FoldLeft that uses the trampoilne technique to leave the for loop with the final accum result
+		return z, nil
 	}
-	return z
 }
 
 func Appender[T any](s T, as []T) []T {
