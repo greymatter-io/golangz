@@ -60,6 +60,25 @@ func TestFoldLeftMatrixSum(t *testing.T) {
 	propcheck.ExpectSuccess[[]int](t, result)
 }
 
+func TestTrampolineFoldLeft(t *testing.T) {
+	massiveArr := []int64{1, 2, 3, 4}
+	sum := func(z int64, x int64) int64 {
+		return z + x
+	}
+	actual := FoldLeft(massiveArr, 0, sum)
+	if actual != 10 {
+		t.Errorf("expected:%v, actual:%v", 10, actual)
+	}
+	concat := func(z string, x int64) string {
+		return fmt.Sprintf("%v-%v", z, x)
+	}
+	actual2 := FoldLeft(massiveArr, "", concat)
+	if actual2 != "-1-2-3-4" {
+		t.Errorf("expected:%v, actual2:%v", "-1-2-3-4", actual2)
+	}
+
+}
+
 func TestFoldRightForStrings(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
 	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
