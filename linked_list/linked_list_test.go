@@ -126,7 +126,7 @@ func TestAddWhile(t *testing.T) {
 					return false
 				}
 			}
-			if !arrays.SetEquality(arrF, ToArray(xs), p2) {
+			if !arrays.ArrayEquality(arrF, ToArray(xs), p2) {
 				errors = multierror.Append(errors, fmt.Errorf("AddWhile did not stop adding when it hit limit. List from AddWhile:%v, expected: %v", ToArray(xs), arrF))
 			}
 
@@ -337,7 +337,7 @@ func TestFoldRight(t *testing.T) {
 				}
 			}
 
-			if !arrays.SetEquality(xss, fConcat, equality) {
+			if !arrays.ArrayEquality(xss, fConcat, equality) {
 				errors = multierror.Append(errors, fmt.Errorf("FoldRight with toArray function returned %v but should have returned %v", fConcat, xss))
 			}
 			if errors != nil {
@@ -386,7 +386,7 @@ func TestFoldLeftAndFoldRight(t *testing.T) {
 			fr := func(s string, accum []string) []string {
 				return append([]string{s}, accum...)
 			}
-			frConcat := FoldRight(l, []string{}, fr)
+			frConcat := arrays.Reverse(FoldRight(l, []string{}, fr))
 			equality := func(l, r string) bool {
 				if l == r {
 					return true
@@ -395,10 +395,10 @@ func TestFoldLeftAndFoldRight(t *testing.T) {
 				}
 			}
 
-			if !arrays.SetEquality(xss, flConcat, equality) {
+			if !arrays.ArrayEquality(xss, flConcat, equality) {
 				errors = multierror.Append(errors, fmt.Errorf("FoldLeft with toArray function returned %v but should have returned %v", flConcat, xss))
 			}
-			if !arrays.SetEquality(xss, frConcat, equality) {
+			if !arrays.ArrayEquality(xss, frConcat, equality) {
 				errors = multierror.Append(errors, fmt.Errorf("FoldRight with toArray function returned %v but should have returned %v", frConcat, xss))
 			}
 

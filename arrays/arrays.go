@@ -80,9 +80,10 @@ func Map[T1, T2 any](as []T1, f func(T1) T2) []T2 {
 }
 
 //The efficiency of this algorithm is O(N)
+//Collapses the given array of arrays without changing the order.
 func Concat[A any](l [][]A) []A {
 	g := func(s []A, as []A) []A {
-		gss := append(as, s...)
+		gss := append(s, as...)
 		return gss
 	}
 	return FoldLeft(l, Zero[A](), g)
@@ -108,11 +109,12 @@ func Filter[T any](as []T, p func(T) bool) []T {
 }
 
 //The efficiency of this algorithm is O(N)
+//Appends as2 to the end of as1
 func Append[T any](as1, as2 []T) []T {
-	var g = func(h T, accum []T) []T {
+	var g = func(accum []T, h T) []T {
 		return append(accum, h)
 	}
-	return FoldRight(as1, as2, g)
+	return FoldLeft(as2, as1, g)
 }
 
 //The efficiency of this algorithm is O(N)
@@ -143,32 +145,16 @@ func ContainsAllOf[T any](source []T, contains []T, equality func(l, r T) bool) 
 }
 
 //The efficiency of this algorithm is O(N)
-func SetEquality[T any](aa []T, bb []T, equality func(l, r T) bool) bool {
-	return (aa == nil && bb == nil) || (len(aa) == 0 && bb == nil) || (aa == nil && len(bb) == 0) || (len(aa) == 0 && len(bb) == 0) || (ContainsAllOf(aa, bb, equality) && ContainsAllOf(bb, aa, equality))
-}
-
-// Returns the set 'a' minus set 'b'
-//The efficiency of this algorithm is O(N)
-func SetMinus[T any](a []T, b []T, equality func(l, r T) bool) []T {
-	var result []T
-	for _, v := range a {
-		if !Contains(b, v, equality) {
-			result = append(result, v)
+func ArrayEquality[T any](aa []T, bb []T, equality func(l, r T) bool) bool {
+	f := func(aa, bb []T) bool {
+		for i, _ := range aa {
+			if !equality(aa[i], bb[i]) {
+				return false
+			}
 		}
+		return true
 	}
-	return result
-}
 
-// Returns the intersection of set 'a' and 'b'
-//The efficiency of this algorithm is O(5 * N)
-func SetIntersection[T any](a []T, b []T, equality func(l, r T) bool) []T {
-	ma := SetMinus(a, b, equality)
-	mb := SetMinus(b, a, equality)
-	return SetMinus(SetUnion(a, b), SetUnion(ma, mb), equality)
-}
-
-// Returns the set union of set 'a' and 'b'
-//The efficiency of this algorithm is O(N)
-func SetUnion[T any](a []T, b []T) []T {
-	return Append(a, b)
+	return (aa == nil && bb == nil) || (len(aa) == 0 && bb == nil) || (aa == nil && len(bb) == 0) || (len(aa) == 0 && len(bb) == 0) ||
+		(len(aa) == len(bb) && f(aa, bb))
 }
