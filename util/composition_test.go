@@ -86,7 +86,7 @@ func TestCompose(t *testing.T) {
 		}
 	}
 
-	if !arrays.SetEquality(actualUsers, expectedUsers, equality) {
+	if !arrays.ArrayEquality(actualUsers, expectedUsers, equality) {
 		t.Errorf("actual:%v, expected:%v", actualUsers, expectedUsers)
 	}
 }

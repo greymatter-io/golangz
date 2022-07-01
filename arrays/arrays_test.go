@@ -180,7 +180,7 @@ func TestFlatMap(t *testing.T) {
 					return false
 				}
 			}
-			if !SetEquality(actual, expected, p) {
+			if !ArrayEquality(actual, expected, p) {
 				errors = multierror.Append(errors, fmt.Errorf("Actual:%v\n    Expected:%v", actual, expected))
 			}
 			if errors != nil {
@@ -218,7 +218,7 @@ func TestConcatArrayOfArrays(t *testing.T) {
 					return false
 				}
 			}
-			if !SetEquality(actual, expected, p) {
+			if !ArrayEquality(actual, expected, p) {
 				errors = multierror.Append(errors, fmt.Errorf("Actual:%v\n    Expected:%v", actual, expected))
 			}
 			if errors != nil {
@@ -235,9 +235,9 @@ func TestConcatArrayOfArrays(t *testing.T) {
 
 func TestMapForStrings(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
-	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
+	ge := propcheck.ChooseArray[string](0, 20, propcheck.String(40))
 
-	prop := propcheck.ForAll(ge,
+	prop := propcheck.ForAll[[]string](ge,
 		"Make the strings all uppercase  \n",
 		func(xs []string) []string {
 			//Make all strings <= in length the constant "DUDE".
@@ -281,16 +281,48 @@ func TestAppendStringArrays(t *testing.T) {
 	strings := []string{"a", "b", "c"}
 	bigarray := Append(Append(strings, strings), Append(strings, strings))
 
-	if diff := deep.Equal(bigarray, []string{"a", "b", "c", "c", "b", "a", "a", "b", "c", "c", "b", "a"}); diff != nil {
-		t.Error(diff)
+	eq := func(l, r string) bool {
+		if l == r {
+			return true
+		} else {
+			return false
+		}
+	}
+	if !ArrayEquality(bigarray, []string{"a", "b", "c", "a", "b", "c", "a", "b", "c", "a", "b", "c"}, eq) {
+		t.Error("Arrays not equal")
+	}
+}
+
+func TestAppend(t *testing.T) {
+	a1 := []string{"a", "b", "c"}
+	a2 := []string{"d", "e", "f"}
+	bigarray := Append(a1, a2)
+
+	eq := func(l, r string) bool {
+		if l == r {
+			return true
+		} else {
+			return false
+		}
+	}
+	if !ArrayEquality(bigarray, []string{"a", "b", "c", "d", "e", "f"}, eq) {
+		t.Error("Arrays not equal")
 	}
 }
 
 func TestIntArrays(t *testing.T) {
+	eq := func(l, r int) bool {
+		if l == r {
+			return true
+		} else {
+			return false
+		}
+	}
 	arr := []int{1, 2, 3}
-	bigarray := Append(Append(arr, arr), Append(arr, arr))
-	if diff := deep.Equal(bigarray, []int{1, 2, 3, 3, 2, 1, 1, 2, 3, 3, 2, 1}); diff != nil {
-		t.Error(diff)
+	actual := Append(Append(arr, arr), Append(arr, arr))
+	expected := []int{1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3}
+	if !ArrayEquality(actual, expected, eq) {
+		t.Errorf("Actual:%v, Expected;%v", actual, expected)
 	}
 }
 
@@ -307,114 +339,5 @@ func TestFilterIntArray(t *testing.T) {
 	bigarray := Filter(arr, p)
 	if diff := deep.Equal(bigarray, []int{3, 3, 3, 3}); diff != nil {
 		t.Error(diff)
-	}
-}
-
-func TestSetEqualityForIntArray(t *testing.T) {
-	arr1 := []int{1, 2, 3, 3, 3, 3, 3, 3, 3, 1, 2}
-	arr2 := []int{1, 2, 3, 3, 3, 3}
-	equality := func(l, r int) bool {
-		if l == r {
-			return true
-		} else {
-			return false
-		}
-	}
-
-	if !SetEquality(arr1, arr2, equality) {
-		t.Error("sets should have been equal but were not")
-	}
-}
-
-func TestSetInequalityForIntArray(t *testing.T) {
-	arr1 := []int{1, 2, 3, 12, 3, 3, 3}
-	arr2 := []int{1, 2, 3, 3, 3, 3}
-	equality := func(l, r int) bool {
-		if l == r {
-			return true
-		} else {
-			return false
-		}
-	}
-	if SetEquality(arr1, arr2, equality) {
-		t.Error("sets should not have been equal but were")
-	}
-}
-
-func TestSetMinusForIntArray(t *testing.T) {
-	arr1 := []int{1, 2, 3, 12, 3, 3, 3}
-	arr2 := []int{1, 2, 3, 3, 3, 3}
-	equality := func(l, r int) bool {
-		if l == r {
-			return true
-		} else {
-			return false
-		}
-	}
-
-	r := SetMinus(arr1, arr2, equality)
-	if !SetEquality(r, []int{12}, equality) {
-		t.Errorf("expected:%v, actual:%v", []int{12}, r)
-	}
-}
-
-func TestSetMinusForStringArray(t *testing.T) {
-	arr1 := []string{"a", "b", "c", "d"}
-	arr2 := []string{"a", "b"}
-	equality := func(l, r string) bool {
-		if l == r {
-			return true
-		} else {
-			return false
-		}
-	}
-
-	r := SetMinus(arr1, arr2, equality)
-	if !SetEquality(r, []string{"c", "d"}, equality) {
-		t.Errorf("expected:%v, actual:%v", []string{"c", "d"}, r)
-	}
-}
-
-func TestSetIntersection(t *testing.T) {
-	type fancy struct {
-		id string
-	}
-	arr1 := []fancy{fancy{"a"}, fancy{"b"}, fancy{"c"}, fancy{"d"}}
-	arr2 := []fancy{fancy{"a"}, fancy{"b"}}
-	equality := func(l, r fancy) bool {
-		if l.id == r.id {
-			return true
-		} else {
-			return false
-		}
-	}
-
-	expected := []fancy{fancy{"a"}, fancy{"b"}}
-	r := SetIntersection(arr1, arr2, equality)
-	if !SetEquality(r, expected, equality) {
-		t.Errorf("expected:%v, actual:%v", expected, r)
-	}
-}
-
-func TestSetUnion(t *testing.T) {
-	type fancy struct {
-		id string
-	}
-	arr1 := []fancy{fancy{"a"}, fancy{"b"}, fancy{"c"}, fancy{"d"}}
-	arr2 := []fancy{fancy{"a"}, fancy{"b"}, fancy{"z"}}
-	equality := func(l, r fancy) bool {
-		if l.id == r.id {
-			return true
-		} else {
-			return false
-		}
-	}
-
-	expected := []fancy{fancy{"a"}, fancy{"z"}, fancy{"b"}, fancy{"c"}, fancy{"d"}}
-
-	//	r := SetUnion(arr1, []string{""})// Note that this will not compile(type error) Yaaaa!!!!
-	r := SetUnion(arr1, arr2)
-	if !SetEquality(r, expected, equality) {
-		t.Errorf("expected:%v, actual:%v", expected, r)
 	}
 }

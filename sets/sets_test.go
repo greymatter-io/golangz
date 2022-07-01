@@ -2,7 +2,6 @@ package sets
 
 import (
 	"fmt"
-	"github.com/greymatter-io/golangz/arrays"
 	"github.com/greymatter-io/golangz/propcheck"
 	"github.com/hashicorp/go-multierror"
 	"testing"
@@ -56,7 +55,7 @@ func TestToSet(t *testing.T) {
 	setComplete := func(xs []fancy) (bool, error) {
 		var errors error
 		set := ToSet(xs, lt, eq)
-		diff := arrays.SetMinus(xs, set, eq)
+		diff := SetMinus(xs, set, eq)
 		if len(diff) > 0 {
 			errors = multierror.Append(errors, fmt.Errorf("Difference between orignal array and its set should have been zero but was %v", diff))
 		}
@@ -74,4 +73,112 @@ func TestToSet(t *testing.T) {
 	)
 	result := prop.Run(propcheck.RunParms{100, rng})
 	propcheck.ExpectSuccess[[]int](t, result)
+}
+
+func TestSetEqualityForIntArray(t *testing.T) {
+	arr1 := []int{1, 2, 3, 3, 3, 3, 3, 3, 3, 1, 2}
+	arr2 := []int{1, 2, 3, 3, 3, 3}
+	equality := func(l, r int) bool {
+		if l == r {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	if !SetEquality(arr1, arr2, equality) {
+		t.Error("sets should have been equal but were not")
+	}
+}
+
+func TestSetInequalityForIntArray(t *testing.T) {
+	arr1 := []int{1, 2, 3, 12, 3, 3, 3}
+	arr2 := []int{1, 2, 3, 3, 3, 3}
+	equality := func(l, r int) bool {
+		if l == r {
+			return true
+		} else {
+			return false
+		}
+	}
+	if SetEquality(arr1, arr2, equality) {
+		t.Error("sets should not have been equal but were")
+	}
+}
+
+func TestSetMinusForIntArray(t *testing.T) {
+	arr1 := []int{1, 2, 3, 12, 3, 3, 3}
+	arr2 := []int{1, 2, 3, 3, 3, 3}
+	equality := func(l, r int) bool {
+		if l == r {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	r := SetMinus(arr1, arr2, equality)
+	if !SetEquality(r, []int{12}, equality) {
+		t.Errorf("expected:%v, actual:%v", []int{12}, r)
+	}
+}
+
+func TestSetMinusForStringArray(t *testing.T) {
+	arr1 := []string{"a", "b", "c", "d"}
+	arr2 := []string{"a", "b"}
+	equality := func(l, r string) bool {
+		if l == r {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	r := SetMinus(arr1, arr2, equality)
+	if !SetEquality(r, []string{"c", "d"}, equality) {
+		t.Errorf("expected:%v, actual:%v", []string{"c", "d"}, r)
+	}
+}
+
+func TestSetIntersection(t *testing.T) {
+	type fancy struct {
+		id string
+	}
+	arr1 := []fancy{fancy{"a"}, fancy{"b"}, fancy{"c"}, fancy{"d"}}
+	arr2 := []fancy{fancy{"a"}, fancy{"b"}}
+	equality := func(l, r fancy) bool {
+		if l.id == r.id {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	expected := []fancy{fancy{"a"}, fancy{"b"}}
+	r := SetIntersection(arr1, arr2, equality)
+	if !SetEquality(r, expected, equality) {
+		t.Errorf("expected:%v, actual:%v", expected, r)
+	}
+}
+
+func TestSetUnion(t *testing.T) {
+	type fancy struct {
+		id string
+	}
+	arr1 := []fancy{fancy{"a"}, fancy{"b"}, fancy{"c"}, fancy{"d"}}
+	arr2 := []fancy{fancy{"a"}, fancy{"b"}, fancy{"z"}}
+	equality := func(l, r fancy) bool {
+		if l.id == r.id {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	expected := []fancy{fancy{"a"}, fancy{"z"}, fancy{"b"}, fancy{"c"}, fancy{"d"}}
+
+	r := SetUnion(arr1, arr2)
+	if !SetEquality(r, expected, equality) {
+		t.Errorf("expected:%v, actual:%v", expected, r)
+	}
 }
