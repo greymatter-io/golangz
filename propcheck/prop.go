@@ -33,10 +33,11 @@ type Falsified[A any] struct {
 	Successes       int
 	LastSuccessCase A
 	Errors          error
+	Seed            int
 }
 
 func (w Falsified[A]) String() string {
-	return fmt.Sprintf("\u001B[31m Falsified{Name: %v, FailedCase: %v, Successes: %v, LastSuccessCase: %v, Errors: %v \u001B[30m}", w.Name, w.FailedCase, w.Successes, w.LastSuccessCase, w.Errors)
+	return fmt.Sprintf("\u001B[31m Falsified{Seed: %v, Name: %v, FailedCase: %v, Successes: %v, LastSuccessCase: %v, Errors: %v \u001B[30m}", w.Seed, w.Name, w.FailedCase, w.Successes, w.LastSuccessCase, w.Errors)
 }
 
 type Passed[A any] struct{}
@@ -79,19 +80,23 @@ func Or[A any](p1, p2 Prop) Prop {
 	return Prop{run, p1.Name}
 }
 
-/**
+/*
+*
 Given a Generator(ge), a generated-value transformation function(f), and a variadic list of predicate functions(assertions),
 ForAll produces a function(of type Prop) that will run a set number of test cases with a given generator.
 
 Parameters:
+
 	ge - a generator of type "func(SimpleRNG) (A, SimpleRNG)"
 	name - a name to assign the Prop
 	f - a function of type "f func(A) B" that takes the generated type A and returns another type B and then passes it along to the list of assertion functions.
 	assertions - a variadic list of assertion functions of type "func(B) (bool, error)", each returning a pair consisting of a boolean success and a possible list of errors.
+
 Returns:
-    Prop - a data structure consisting of a descriptive name for the property and a function of type func(n RunParms) Result. Result is a sum type that can be
-		either Falsified or Passed. The FailedCase and LastSuccessCase attributes of the Falsified type(type parameter A)
-        contain the value that caused the test failure and the last successful value for the test.
+
+	    Prop - a data structure consisting of a descriptive name for the property and a function of type func(n RunParms) Result. Result is a sum type that can be
+			either Falsified or Passed. The FailedCase and LastSuccessCase attributes of the Falsified type(type parameter A)
+	        contain the value that caused the test failure and the last successful value for the test.
 */
 func ForAll[A, B any](ge func(SimpleRNG) (A, SimpleRNG), name string, f func(A) B, assertions ...func(B) (bool, error)) Prop {
 	run := func(n RunParms) Result {
@@ -123,6 +128,7 @@ func ForAll[A, B any](ge func(SimpleRNG) (A, SimpleRNG), name string, f func(A) 
 					Successes:       x,
 					LastSuccessCase: lastSuccessCase,
 					Errors:          errors,
+					Seed:            rng.Seed,
 				}
 				failedCases = append(failedCases, f)
 			}
