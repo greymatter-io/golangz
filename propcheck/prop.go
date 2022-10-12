@@ -101,6 +101,7 @@ Returns:
 func ForAll[A, B any](ge func(SimpleRNG) (A, SimpleRNG), name string, f func(A) B, assertions ...func(B) (bool, error)) Prop {
 	run := func(n RunParms) Result {
 		var rng = n.Rng
+		fmt.Printf("[%v - Seed:%v]\n", name, rng.Seed)
 		var failedCases []Falsified[A]
 		var successCases []Result
 		var lastSuccessCase A
