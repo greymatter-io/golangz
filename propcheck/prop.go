@@ -3,6 +3,7 @@ package propcheck
 import (
 	"fmt"
 	"github.com/hashicorp/go-multierror"
+	"log"
 	"testing"
 )
 
@@ -33,17 +34,19 @@ type Falsified[A any] struct {
 	Successes       int
 	LastSuccessCase A
 	Errors          error
-	Seed            int
+	Seed            SimpleRNG
 }
 
 func (w Falsified[A]) String() string {
 	return fmt.Sprintf("\u001B[31m Falsified{Seed: %v, Name: %v, FailedCase: %v, Successes: %v, LastSuccessCase: %v, Errors: %v \u001B[30m}", w.Seed, w.Name, w.FailedCase, w.Successes, w.LastSuccessCase, w.Errors)
 }
 
-type Passed[A any] struct{}
+type Passed[A any] struct {
+	Seed SimpleRNG
+}
 
 func (w Passed[A]) String() string {
-	return fmt.Sprintf("Passed{}")
+	return fmt.Sprintf("Passed{%v}", w.Seed)
 }
 
 func (f Falsified[A]) IsFalsified() bool {
@@ -99,9 +102,17 @@ Returns:
 	        contain the value that caused the test failure and the last successful value for the test.
 */
 func ForAll[A, B any](ge func(SimpleRNG) (A, SimpleRNG), name string, f func(A) B, assertions ...func(B) (bool, error)) Prop {
+	var origRng SimpleRNG
 	run := func(n RunParms) Result {
+		defer func() {
+			if err := recover(); err != nil {
+				log.Printf("Panic:%v occurred in test:%v for seed:%v:", err, name, origRng)
+			}
+		}()
 		var rng = n.Rng
-		fmt.Printf("[%v - Seed:%v]\n", name, rng.Seed)
+		if origRng.Seed == 0 { //Original seed not initialized for test failure and panic/error reporting
+			origRng = rng
+		}
 		var failedCases []Falsified[A]
 		var successCases []Result
 		var lastSuccessCase A
@@ -129,7 +140,7 @@ func ForAll[A, B any](ge func(SimpleRNG) (A, SimpleRNG), name string, f func(A) 
 					Successes:       x,
 					LastSuccessCase: lastSuccessCase,
 					Errors:          errors,
-					Seed:            rng.Seed,
+					Seed:            origRng,
 				}
 				failedCases = append(failedCases, f)
 			}
@@ -138,7 +149,7 @@ func ForAll[A, B any](ge func(SimpleRNG) (A, SimpleRNG), name string, f func(A) 
 		if len(failedCases) > 0 {
 			return failedCases[0]
 		} else {
-			return Passed[A]{}
+			return Passed[A]{origRng}
 		}
 
 	}
