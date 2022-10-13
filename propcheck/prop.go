@@ -41,10 +41,12 @@ func (w Falsified[A]) String() string {
 	return fmt.Sprintf("\u001B[31m Falsified{Seed: %v, Name: %v, FailedCase: %v, Successes: %v, LastSuccessCase: %v, Errors: %v \u001B[30m}", w.Seed, w.Name, w.FailedCase, w.Successes, w.LastSuccessCase, w.Errors)
 }
 
-type Passed[A any] struct{}
+type Passed[A any] struct {
+	Seed SimpleRNG
+}
 
 func (w Passed[A]) String() string {
-	return fmt.Sprintf("Passed{}")
+	return fmt.Sprintf("Passed{%v}", w.Seed)
 }
 
 func (f Falsified[A]) IsFalsified() bool {
@@ -147,7 +149,7 @@ func ForAll[A, B any](ge func(SimpleRNG) (A, SimpleRNG), name string, f func(A) 
 		if len(failedCases) > 0 {
 			return failedCases[0]
 		} else {
-			return Passed[A]{}
+			return Passed[A]{origRng}
 		}
 
 	}

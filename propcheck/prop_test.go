@@ -130,6 +130,21 @@ func TestFailureLogsCorrectSeed(t *testing.T) {
 	}
 }
 
+func TestSuccessHasCorrectSeedInResult(t *testing.T) {
+	ge := ChooseInt(1, 200)
+	rng := SimpleRNG{Seed: 13634551}
+	actual := ForAll(ge, "Verify that a test failure logs the correct seed.",
+		func(x int) int { return x },
+		func(x int) (bool, error) {
+			return true, nil
+		},
+	)
+	result := actual.Run(RunParms{200, rng})
+	if !strings.Contains(fmt.Sprintf("%v", result), fmt.Sprintf("%v", rng)) {
+		t.Errorf("result should return the seed")
+	}
+}
+
 func TestExpectSuccess(t *testing.T) {
 	ge := ChooseInt(1, 1000)
 	rng := SimpleRNG{Seed: time.Now().Nanosecond()}

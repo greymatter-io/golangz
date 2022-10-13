@@ -12,7 +12,7 @@ func TestStringGenerator(t *testing.T) {
 	stringMaxSize := 100
 	var zeroLengthString = false
 	var nonZeroLengthString = false
-	mustBeAZeroLengthString := ForAll(String(stringMaxSize), "Must be A A zero length string. \n",
+	mustBeAZeroLengthString := ForAll(String(stringMaxSize), "Must be a zero length string. \n",
 		func(x string) string {
 			return x
 		},
@@ -23,7 +23,7 @@ func TestStringGenerator(t *testing.T) {
 			return true, nil
 		},
 	)
-	mustBeANonZerolengthString := ForAll(String(stringMaxSize), "Must be A  non-zero length string. \n",
+	mustBeANonZerolengthString := ForAll(String(stringMaxSize), "Must be a non-zero length string. \n",
 		func(x string) string {
 			return x
 		},
