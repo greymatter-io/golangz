@@ -24,11 +24,17 @@ func TestQuickSortWithInts(t *testing.T) {
 	prop := propcheck.ForAll(ge,
 		"Sort an array of ints  \n",
 		func(xs []int) []int {
-			return xs
+			if len(xs) == 0 {
+				return []int{}
+			} else {
+				return xs
+			}
 		},
-		func(expected []int) (bool, error) {
+		func(xs []int) (bool, error) {
+			var expected = make([]int, len(xs))
+			copy(expected, xs)
 			//myStart := time.Now()
-			actual := QuickSort(expected, lessThan)
+			QuickSort(xs, lessThan)
 			//log.Printf(
 			//	"My sort of int array of size:%v took %s", len(expected),
 			//	time.Since(myStart),
@@ -41,7 +47,7 @@ func TestQuickSortWithInts(t *testing.T) {
 			//)
 
 			var errors error
-			if diff := deep.Equal(actual, expected); diff != nil {
+			if diff := deep.Equal(xs, expected); diff != nil {
 				errors = multierror.Append(errors, fmt.Errorf("Arrays were not equal %v ", diff))
 			}
 			if errors != nil {
@@ -70,11 +76,17 @@ func TestQuickSortWithStrings(t *testing.T) {
 	prop := propcheck.ForAll(ge,
 		"Sort an array of strings  \n",
 		func(xs []string) []string {
-			return xs
+			if len(xs) == 0 {
+				return []string{}
+			} else {
+				return xs
+			}
 		},
-		func(expected []string) (bool, error) {
+		func(xs []string) (bool, error) {
 			//			myStart := time.Now()
-			actual := QuickSort(expected, lessThan)
+			var expected = make([]string, len(xs))
+			copy(expected, xs)
+			QuickSort(xs, lessThan)
 			//log.Printf(
 			//	"My sort of string array of size:%v took %s", len(expected),
 			//	time.Since(myStart),
@@ -87,7 +99,7 @@ func TestQuickSortWithStrings(t *testing.T) {
 			//)
 
 			var errors error
-			if diff := deep.Equal(actual, expected); diff != nil {
+			if diff := deep.Equal(xs, expected); diff != nil {
 				errors = multierror.Append(errors, fmt.Errorf("Arrays were not equal %v ", diff))
 			}
 			if errors != nil {
@@ -116,8 +128,8 @@ func TestSortSpecialGuyArray(t *testing.T) {
 			return false
 		}
 	}
-	actual := QuickSort(xs, lessThan)
-	if fmt.Sprintf("%v", actual) != fmt.Sprintf("%v", expected) {
-		t.Errorf("actual:%v, expected:%v", actual, expected)
+	QuickSort(xs, lessThan)
+	if fmt.Sprintf("%v", xs) != fmt.Sprintf("%v", expected) {
+		t.Errorf("actual:%v, expected:%v", xs, expected)
 	}
 }
