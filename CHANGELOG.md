@@ -1,5 +1,8 @@
 # Golangz Changelog
 
+## [v0.1.20] -- 2022-11-29
+- Corrects sort to mutate array and not lie about it.
+
 ## [v0.1.16] -- 2022-07-01
 
 ### Changed
