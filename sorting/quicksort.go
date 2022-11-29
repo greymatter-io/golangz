@@ -9,20 +9,20 @@ func qs(l, r int, partition func(l, r, pivot int) int) {
 }
 
 // This is a generic Quicksort.  You only need to pass in a predicate function that tells whether or not l is less than r.
-func QuickSort[T any](xs []T, lessThan func(l, r T) bool) []T {
-	arr := xs
+// This is NOT a pure function. It mutates the underlying xs array.
+func QuickSort[T any](xs []T, lessThan func(l, r T) bool) {
 	swap := func(x, y int) {
-		tmp := arr[x]
-		arr[x] = arr[y]
-		arr[y] = tmp
+		tmp := xs[x]
+		xs[x] = xs[y]
+		xs[y] = tmp
 	}
 
 	partition := func(l, r, pivot int) int {
-		pivotVal := arr[pivot]
+		pivotVal := xs[pivot]
 		swap(pivot, r)
 		j := l
 		for i := l; i < r; i++ {
-			if lessThan(arr[i], pivotVal) {
+			if lessThan(xs[i], pivotVal) {
 				swap(i, j)
 				j++
 			}
@@ -32,9 +32,9 @@ func QuickSort[T any](xs []T, lessThan func(l, r T) bool) []T {
 	}
 
 	if len(xs) == 0 {
-		return xs
+		return
 	} else {
-		qs(0, len(arr)-1, partition)
-		return arr
+		qs(0, len(xs)-1, partition)
+		return
 	}
 }
