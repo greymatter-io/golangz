@@ -1,5 +1,8 @@
 # Golangz Changelog
 
+## [v0.1.21] -- 2023-03-01
+- Removes go.mod because it is not necessary given go mod init and go mod tidy
+
 ## [v0.1.20] -- 2022-11-29
 - Corrects sort to mutate array and not lie about it.
 
