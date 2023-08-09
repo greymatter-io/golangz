@@ -16,14 +16,14 @@ func TestToSet(t *testing.T) {
 		id int
 	}
 
-	lt := func(l, r fancy) bool {
+	var lt = func(l, r fancy) bool {
 		if l.id < r.id {
 			return true
 		} else {
 			return false
 		}
 	}
-	eq := func(l, r fancy) bool {
+	var eq = func(l, r fancy) bool {
 		if l.id == r.id {
 			return true
 		} else {
@@ -146,7 +146,14 @@ func TestSetIntersection(t *testing.T) {
 	}
 	arr1 := []fancy{fancy{"a"}, fancy{"b"}, fancy{"c"}, fancy{"d"}}
 	arr2 := []fancy{fancy{"a"}, fancy{"b"}}
-	equality := func(l, r fancy) bool {
+	var lt = func(l, r fancy) bool {
+		if l.id < r.id {
+			return true
+		} else {
+			return false
+		}
+	}
+	var eq = func(l, r fancy) bool {
 		if l.id == r.id {
 			return true
 		} else {
@@ -155,8 +162,8 @@ func TestSetIntersection(t *testing.T) {
 	}
 
 	expected := []fancy{fancy{"a"}, fancy{"b"}}
-	r := SetIntersection(arr1, arr2, equality)
-	if !SetEquality(r, expected, equality) {
+	r := SetIntersection(arr1, arr2, lt, eq)
+	if !SetEquality(r, expected, eq) {
 		t.Errorf("expected:%v, actual:%v", expected, r)
 	}
 }
@@ -164,6 +171,20 @@ func TestSetIntersection(t *testing.T) {
 func TestSetUnion(t *testing.T) {
 	type fancy struct {
 		id string
+	}
+	var lt = func(l, r fancy) bool {
+		if l.id < r.id {
+			return true
+		} else {
+			return false
+		}
+	}
+	var eq = func(l, r fancy) bool {
+		if l.id == r.id {
+			return true
+		} else {
+			return false
+		}
 	}
 	arr1 := []fancy{fancy{"a"}, fancy{"b"}, fancy{"c"}, fancy{"d"}}
 	arr2 := []fancy{fancy{"a"}, fancy{"b"}, fancy{"z"}}
@@ -177,7 +198,7 @@ func TestSetUnion(t *testing.T) {
 
 	expected := []fancy{fancy{"a"}, fancy{"z"}, fancy{"b"}, fancy{"c"}, fancy{"d"}}
 
-	r := SetUnion(arr1, arr2)
+	r := SetUnion(arr1, arr2, lt, eq)
 	if !SetEquality(r, expected, equality) {
 		t.Errorf("expected:%v, actual:%v", expected, r)
 	}
