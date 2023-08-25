@@ -22,11 +22,11 @@ func lt(l, r *Cache) bool {
 	}
 }
 
-func keyGT(l, r *Cache) bool {
-	if l.key > r.key {
-		return true
-	} else {
+func parentLT(parent, child *Cache) bool { //If parent is greater this is an error
+	if parent.key > child.key {
 		return false
+	} else {
+		return true
 	}
 }
 
@@ -50,12 +50,12 @@ func minimumCorrectValue[A any, B comparable](h Heap[A, B], sorted []*A, eq func
 	}
 }
 
-func parentIsLessThanOrEqual[A any, B comparable](h Heap[A, B], lastIdx int, parentGT func(l, r *A) bool) error {
+func parentIsLessThanOrEqual[A any, B comparable](h Heap[A, B], lastIdx int, parentLT func(l, r *A) bool) error {
 	var pIdx = ParentIdx(lastIdx)
 	var cIdx = lastIdx
 	var errors error
 	for pIdx >= 0 {
-		if parentGT(h.hp[pIdx], h.hp[cIdx]) {
+		if !parentLT(h.hp[pIdx], h.hp[cIdx]) {
 			errors = multierror.Append(errors, fmt.Errorf("parent:%v value was not less than or equal to child's:%v\n", h.hp[pIdx], h.hp[cIdx]))
 		}
 		cIdx = pIdx
@@ -69,17 +69,17 @@ func insert(p []int) Heap[Cache, string] {
 }
 
 func insertIntoHeap(xss []int) Heap[Cache, string] {
-	var r = New[Cache, string]()
+	var h = New[Cache, string]()
 	for _, x := range xss {
-		r = HeapInsert(r, &Cache{x, fmt.Sprintf("key:%v", x)}, lt)
+		h = HeapInsert(h, &Cache{x, fmt.Sprintf("key:%v", x)}, lt)
 	}
-	return r
+	return h
 }
 
 func validateIsAHeap(p Heap[Cache, string]) (bool, error) {
 	var errors error
 	for idx := range p.hp {
-		errors = parentIsLessThanOrEqual(p, idx, keyGT)
+		errors = parentIsLessThanOrEqual(p, idx, parentLT)
 	}
 	if errors != nil {
 		return false, errors
@@ -103,7 +103,7 @@ func validateHeapMin(p Heap[Cache, string]) (bool, error) {
 }
 
 func TestHeapInsertWithEmptyHeap(t *testing.T) {
-	g := propcheck.ChooseArray(0, 5, propcheck.ChooseInt(0, 10000))
+	g := propcheck.ChooseArray(0, 5, propcheck.ChooseInt(0, 3))
 	rng := propcheck.SimpleRNG{time.Now().Nanosecond()}
 
 	prop := propcheck.ForAll(g,
@@ -115,7 +115,7 @@ func TestHeapInsertWithEmptyHeap(t *testing.T) {
 	propcheck.ExpectSuccess[[]int](t, result)
 }
 
-func TestHeapInsertWithNonEmptyHeapHeap(t *testing.T) {
+func TestHeapInsertWithNonEmptyHeap(t *testing.T) {
 	g := propcheck.ChooseArray(10, 1000, propcheck.ChooseInt(0, 10000))
 	rng := propcheck.SimpleRNG{time.Now().Nanosecond()}
 
