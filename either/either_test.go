@@ -90,7 +90,7 @@ func TestMapChainingWithLeft(t *testing.T) {
 	concat := func(x string) string {
 		return fmt.Sprintf("%v%v", x, x)
 	}
-	b := Map(Map[int, string](a, hello), concat)
+	b := Map[int, string](Map[int, string](a, hello), concat)
 
 	switch v := b.(type) {
 	case Left[int]:
@@ -108,7 +108,7 @@ func TestMapChainingWithErrorLeft(t *testing.T) {
 	concat := func(x string) string {
 		return fmt.Sprintf("%v%v", x, x)
 	}
-	b := Map(Map[error, string](a, hello), concat)
+	b := Map[error, string](Map[error, string](a, hello), concat)
 
 	switch v := b.(type) {
 	case Left[error]:
