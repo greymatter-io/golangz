@@ -10,8 +10,8 @@ import (
 )
 
 type Cache struct {
-	key  int
-	data string
+	key   int
+	value string
 }
 
 func lt(l, r *Cache) bool {
@@ -68,8 +68,12 @@ func insert(p []int) Heap[Cache, string] {
 	return xss
 }
 
+var elementKeyExtractor = func(c *Cache) string {
+	return c.value
+}
+
 func insertIntoHeap(xss []int) Heap[Cache, string] {
-	var h = New[Cache, string]()
+	var h = New[Cache, string](elementKeyExtractor)
 	for _, x := range xss {
 		h = HeapInsert(h, &Cache{x, fmt.Sprintf("key:%v", x)}, lt)
 	}
@@ -147,7 +151,7 @@ func TestHeapDeleteSpecificElements(t *testing.T) {
 		delete6ElementsFromHeapOfAtLeast6,
 		validateIsAHeap, validateHeapMin,
 	)
-	result := prop.Run(propcheck.RunParms{100, rng}) //The 3rd iteration paniced with array out or bounds
+	result := prop.Run(propcheck.RunParms{100, rng})
 	propcheck.ExpectSuccess[[]int](t, result)
 }
 

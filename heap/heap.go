@@ -5,15 +5,20 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// An generic heap containing the heap's underlying array and a corresponding map that allows
+// lookup of the key's index in the underlying array with O(1) cost.
+// Also contains a function that allows extraction of the A's key value for insertion into the heapLocator map.
 type Heap[A any, B comparable] struct {
-	hp          []*A
-	heapLocator map[B]int //the type B represents the key type in the heap, providing a O(1) way of looking up the index of a key in the hp array(the heap)
+	hp                  []*A
+	heapLocator         map[B]int  //the type B represents the key type in the heap, providing a O(1) way of looking up the index of a key in the hp array(the heap)
+	elementKeyExtractor func(*A) B //A function that extracts the key of the given hp element from an A instance.
 }
 
-func New[A any, B comparable]() Heap[A, B] {
+func New[A any, B comparable](keyExtractor func(*A) B) Heap[A, B] {
 	return Heap[A, B]{
-		hp:          make([]*A, 0),
-		heapLocator: make(map[B]int, 0),
+		hp:                  make([]*A, 0),
+		heapLocator:         make(map[B]int, 0),
+		elementKeyExtractor: keyExtractor,
 	}
 }
 
