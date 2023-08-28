@@ -3,6 +3,7 @@ package heap
 import (
 	"fmt"
 	"github.com/greymatter-io/golangz/propcheck"
+	"github.com/greymatter-io/golangz/sets"
 	"github.com/greymatter-io/golangz/sorting"
 	"github.com/hashicorp/go-multierror"
 	"testing"
@@ -12,6 +13,21 @@ import (
 type Cache struct {
 	key   int
 	value string
+}
+
+func ltInt(l, r int) bool {
+	if l < r {
+		return true
+	} else {
+		return false
+	}
+}
+func eqInt(l, r int) bool {
+	if l == r {
+		return true
+	} else {
+		return false
+	}
 }
 
 func lt(l, r *Cache) bool {
@@ -82,8 +98,15 @@ func insertIntoHeap(xss []int) Heap[Cache, string] {
 
 func validateIsAHeap(p Heap[Cache, string]) (bool, error) {
 	var errors error
-	for idx := range p.hp {
+	for idx, c := range p.hp {
 		errors = parentIsLessThanOrEqual(p, idx, parentLT)
+		k := p.elementKeyExtractor(p.hp[idx])
+		if c.value != k {
+			errors = multierror.Append(errors, fmt.Errorf("Expected heap locator key value:%v using heap locator to equal heap key value:%v", k, c.value))
+		}
+	}
+	if len(p.hp) != len(p.heapLocator) {
+		errors = multierror.Append(errors, fmt.Errorf("Heap locator map:%v should have been same length as heap:%v", len(p.heapLocator), len(p.hp)))
 	}
 	if errors != nil {
 		return false, errors
@@ -107,7 +130,8 @@ func validateHeapMin(p Heap[Cache, string]) (bool, error) {
 }
 
 func TestHeapInsertWithEmptyHeap(t *testing.T) {
-	g := propcheck.ChooseArray(0, 5, propcheck.ChooseInt(0, 3))
+	ge := propcheck.ChooseInt(0, 10000)
+	g := sets.ChooseSet(0, 5, ge, ltInt, eqInt)
 	rng := propcheck.SimpleRNG{time.Now().Nanosecond()}
 
 	prop := propcheck.ForAll(g,
@@ -120,7 +144,8 @@ func TestHeapInsertWithEmptyHeap(t *testing.T) {
 }
 
 func TestHeapInsertWithNonEmptyHeap(t *testing.T) {
-	g := propcheck.ChooseArray(10, 1000, propcheck.ChooseInt(0, 10000))
+	ge := propcheck.ChooseInt(0, 1000000)
+	g := sets.ChooseSet(10, 1000, ge, ltInt, eqInt)
 	rng := propcheck.SimpleRNG{time.Now().Nanosecond()}
 
 	prop := propcheck.ForAll(g,
@@ -132,8 +157,8 @@ func TestHeapInsertWithNonEmptyHeap(t *testing.T) {
 	propcheck.ExpectSuccess[[]int](t, result)
 }
 
-func TestHeapDeleteSpecificElements(t *testing.T) {
-	var delete6ElementsFromHeapOfAtLeast6 = func(xss []int) Heap[Cache, string] {
+func TestHeapDeleteEveryElementStartingFromLast(t *testing.T) {
+	var delete6ElementsFromHeapOf6 = func(xss []int) Heap[Cache, string] {
 		var h = insertIntoHeap(xss)
 		h, _ = HeapDelete(h, 5, lt)
 		h, _ = HeapDelete(h, 4, lt)
@@ -144,11 +169,12 @@ func TestHeapDeleteSpecificElements(t *testing.T) {
 		return h
 	}
 
-	g0 := propcheck.ChooseArray(6, 15, propcheck.ChooseInt(1, 2000))
+	ge := propcheck.ChooseInt(0, 1000000)
+	g0 := sets.ChooseSet(6, 6, ge, ltInt, eqInt)
 	rng := propcheck.SimpleRNG{time.Now().Nanosecond()}
 	prop := propcheck.ForAll(g0,
 		"Validate HeapDelete  \n",
-		delete6ElementsFromHeapOfAtLeast6,
+		delete6ElementsFromHeapOf6,
 		validateIsAHeap, validateHeapMin,
 	)
 	result := prop.Run(propcheck.RunParms{100, rng})
@@ -192,7 +218,8 @@ func TestHeapDeleteMinElement(t *testing.T) {
 		}
 	}
 
-	g0 := propcheck.ChooseArray(0, 1000, propcheck.ChooseInt(1, 200000))
+	ge := propcheck.ChooseInt(0, 1000000)
+	g0 := sets.ChooseSet(0, 1000, ge, ltInt, eqInt)
 	rng := propcheck.SimpleRNG{time.Now().Nanosecond()}
 	prop := propcheck.ForAll(g0,
 		"Validate HeapDelete  \n",
@@ -201,4 +228,28 @@ func TestHeapDeleteMinElement(t *testing.T) {
 	)
 	result := prop.Run(propcheck.RunParms{100, rng})
 	propcheck.ExpectSuccess[[]int](t, result)
+}
+
+func TestDeleteFromEmptyHeap(t *testing.T) {
+	h, err := HeapDelete(New[Cache, string](elementKeyExtractor), 0, lt)
+
+	if err == nil {
+		t.Errorf("Should have gotten an error trying to delete from an empty heap")
+	}
+	if len(h.hp) != 0 {
+		t.Errorf("heap should have been empty")
+	}
+	if len(h.heapLocator) != 0 {
+		t.Errorf("heaplocator map should have been empty")
+	}
+}
+
+func TestDeletePastLastElement(t *testing.T) {
+	var h = New[Cache, string](elementKeyExtractor)
+	h = HeapInsert(h, &Cache{12, fmt.Sprintf("key:%v", 12)}, lt)
+	h, err := HeapDelete(h, 2, lt)
+
+	if err == nil {
+		t.Errorf("Should have gotten an error trying to delete past the end of the heap")
+	}
 }

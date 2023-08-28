@@ -5,7 +5,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// An generic heap containing the heap's underlying array and a corresponding map that allows
+// A generic heap that supports O(log n) insert, delete and change key operation as well as O(1) find minimum value operations.
+//
+//Invariants:
+//   1. Make sure your heap keys are unique, otherwise the heap locator replaceKey function will not work because it
+//  relies on a Golang map.
+
+// A generic heap containing the heap's underlying array and a corresponding map that allows
 // lookup of the key's index in the underlying array with O(1) cost.
 // Also contains a function that allows extraction of the A's key value for insertion into the heapLocator map.
 type Heap[A any, B comparable] struct {
@@ -39,11 +45,11 @@ func ParentIdx(i int) int {
 // This is a not pure function
 // Parameters:
 //
-//	heap []A - the slice that is holding the heap
+//	h - the generic heap object containing the heap(represented as a slice) and the reverse-lookup map.
 //	i int - the index into the heap of the element you want to move up. Array indices start with the number zero.
-//	lt func(l, r A) bool - A predicate function that determines whether or not the left A element is less than the right A element.
+//	lt func(l, r A) bool - A predicate function that determines whether the left A element is less than the right A element.
 //
-// Returns - The modified heap (as a slice) that has the i'th element in its proper position in the heap
+// Returns - The modified heap that has the i'th element in its proper position in the heap
 // Performance - O(log N) assuming that the array is almost-a-heap with the key: heap(i) too small.
 func heapifyUp[A any, B comparable](h Heap[A, B], i int, lt func(l, r *A) bool) Heap[A, B] {
 	if len(h.hp) == 0 {
@@ -55,8 +61,13 @@ func heapifyUp[A any, B comparable](h Heap[A, B], i int, lt func(l, r *A) bool) 
 			//Swap elements
 			temp := h.hp[i]
 			temp2 := h.hp[j]
+
 			h.hp[j] = temp
 			h.hp[i] = temp2
+			aa := h.elementKeyExtractor(h.hp[j])
+			bb := h.elementKeyExtractor(h.hp[i])
+			h.heapLocator[aa] = j
+			h.heapLocator[bb] = i
 			h = heapifyUp(h, j, lt)
 		}
 	}
@@ -66,13 +77,12 @@ func heapifyUp[A any, B comparable](h Heap[A, B], i int, lt func(l, r *A) bool) 
 // This is not a pure function because it modified the array each time.
 // Parameters:
 //
-//	heap []A - the slice that is holding the heap
-//	i int - the index into the heap of the element you want to move down. Array indices start with the number zero.TODO change
-//	lt func(l, r A) bool - A predicate function that determines whether or not the left A element is less than the right A element.
+//	h - the generic heap object containing the heap(represented as a slice) and the reverse-lookup map.
+//	i int - the index into the heap of the element you want to move up. Array indices start with the number zero.
+//	lt func(l, r A) bool - A predicate function that determines whether the left A element is less than the right A element.
 //
-// Returns - The original heap (as a slice) that has the i'th element in its proper position
+// Returns - The modified heap that has the i'th element in its proper position in the heap
 // Performance - O(log N) assuming that the array is almost-a-heap with the key: heap(i) too big.
-// func (e Heap[A, B]) heapifyDown(h []*A, i int, lt func(l, r *A) bool) []*A {
 func heapifyDown[A any, B comparable](h Heap[A, B], i int, lt func(l, r *A) bool) Heap[A, B] {
 	var j int
 	n := len(h.hp)
@@ -103,6 +113,12 @@ func heapifyDown[A any, B comparable](h Heap[A, B], i int, lt func(l, r *A) bool
 		temp2 := h.hp[j]
 		h.hp[j] = temp
 		h.hp[i] = temp2
+		///
+		aa := h.elementKeyExtractor(h.hp[j])
+		bb := h.elementKeyExtractor(h.hp[i])
+		h.heapLocator[aa] = j
+		h.heapLocator[bb] = i
+		///
 		h = heapifyDown(h, j, lt)
 	}
 	return h
@@ -111,7 +127,7 @@ func heapifyDown[A any, B comparable](h Heap[A, B], i int, lt func(l, r *A) bool
 // This is a pure function.
 // Parameters:
 //
-//	heap []A - the slice that is holding the heap
+//	h - the generic heap object containing the heap(represented as a slice) and the reverse-lookup map.
 //
 // Returns -the minimum element in the given heap without removing it. O(1)
 // Performance - O(1)
@@ -128,7 +144,7 @@ func FindMin[A any, B comparable](h Heap[A, B]) (*A, error) {
 //
 // Parameters:
 //
-//	heap []A - the slice that is holding the heap
+//	h - the generic heap object containing the heap(represented as a slice) and the reverse-lookup map.
 //	a  A - the element you want to insert into the heap
 //	lt func(l, r A) bool - A predicate function that determines whether or not the left A element is less than the right A element.
 //
@@ -139,37 +155,45 @@ func HeapInsert[A any, B comparable](h Heap[A, B], a *A, lt func(l, r *A) bool) 
 	h.hp = append(h.hp, nil)
 	l := len(h.hp) - 1
 	h.hp[l] = a
+
+	aa := h.elementKeyExtractor(h.hp[l])
+	h.heapLocator[aa] = l
+
 	return heapifyUp(h, l, lt)
 }
 
 // Deletes an element from the given heap. This is not a pure function.
 // Parameters:
 //
-//	heap []A - the slice that is holding the heap
+//	h - the generic heap object containing the heap(represented as a slice) and the reverse-lookup map.
 //	i int - the index into the heap of the element you want to delete. Array indices start with the number zero.
 //	lt func(l, r A) bool - A predicate function that determines whether or not the left A element is less than the right A element.
 //
-// Returns - The original heap that has the given element in its proper position
+// Returns - The original heap that has the given element in its proper position.
+//
+//	If the heao is empty or the indice you are trying to delete is longer than the heap(zero indexed) then you get an error
+//
 // Performance - O(log N)
 func HeapDelete[A any, B comparable](h Heap[A, B], i int, lt func(l, r *A) bool) (Heap[A, B], error) {
-
-	n := len(h.hp)
-	if n == 0 {
-		return h, nil
-	}
-
-	if i > len(h.hp)-1 {
+	if i > len(h.hp)-1 || len(h.hp) == 0 {
 		log.Errorf("element:%v you are trying to delete is longer than heap length: %v", i, len(h.hp)-1)
 		return h, fmt.Errorf("element:%v you are trying to delete is longer than heap length: %v", i, len(h.hp)-1)
 	}
 
-	//Delete last and only element from heap
+	//Delete last element and return. No need to move anything around.
 	if i == len(h.hp)-1 {
-		h.hp = []*A{}
+		k := h.elementKeyExtractor(h.hp[i])
+		delete(h.heapLocator, k)
+		h.hp = h.hp[0 : len(h.hp)-1]
 		return h, nil
 	}
+	k := h.elementKeyExtractor(h.hp[i])
+	delete(h.heapLocator, k)
 	h.hp[i] = h.hp[len(h.hp)-1]
+	j := h.elementKeyExtractor(h.hp[i])
+	h.heapLocator[j] = i
 	h.hp = h.hp[0 : len(h.hp)-1]
+
 	if len(h.hp) == 1 {
 		return h, nil
 	}
