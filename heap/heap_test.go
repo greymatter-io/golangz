@@ -105,8 +105,8 @@ func validateIsAHeap(p Heap[Cache, string]) (bool, error) {
 			errors = multierror.Append(errors, fmt.Errorf("Expected heap locator key value:%v using heap locator to equal heap key value:%v", k, c.value))
 		}
 	}
-	if len(p.hp) != len(p.heapLocator) {
-		errors = multierror.Append(errors, fmt.Errorf("Heap locator map:%v should have been same length as heap:%v", len(p.heapLocator), len(p.hp)))
+	if len(p.hp) != len(p.position) {
+		errors = multierror.Append(errors, fmt.Errorf("Heap locator map:%v should have been same length as heap:%v", len(p.position), len(p.hp)))
 	}
 	if errors != nil {
 		return false, errors
@@ -239,7 +239,7 @@ func TestDeleteFromEmptyHeap(t *testing.T) {
 	if len(h.hp) != 0 {
 		t.Errorf("heap should have been empty")
 	}
-	if len(h.heapLocator) != 0 {
+	if len(h.position) != 0 {
 		t.Errorf("heaplocator map should have been empty")
 	}
 }
