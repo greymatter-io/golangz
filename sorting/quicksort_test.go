@@ -2,7 +2,7 @@ package sorting
 
 import (
 	"fmt"
-	"github.com/go-test/deep"
+	"github.com/greymatter-io/golangz/arrays"
 	"github.com/greymatter-io/golangz/propcheck"
 	"github.com/hashicorp/go-multierror"
 	"sort"
@@ -46,9 +46,16 @@ func TestQuickSortWithInts(t *testing.T) {
 			//	time.Since(goStart),
 			//)
 
+			eq := func(l, r int) bool {
+				if l == r {
+					return true
+				} else {
+					return false
+				}
+			}
 			var errors error
-			if diff := deep.Equal(xs, expected); diff != nil {
-				errors = multierror.Append(errors, fmt.Errorf("Arrays were not equal %v ", diff))
+			if !arrays.ArrayEquality(xs, expected, eq) {
+				errors = multierror.Append(errors, fmt.Errorf(" Actual: %v\nExpected:%v ", xs, expected))
 			}
 			if errors != nil {
 				return false, errors
@@ -83,7 +90,7 @@ func TestQuickSortWithStrings(t *testing.T) {
 			}
 		},
 		func(xs []string) (bool, error) {
-			//			myStart := time.Now()
+			//	myStart := time.Now()
 			var expected = make([]string, len(xs))
 			copy(expected, xs)
 			QuickSort(xs, lessThan)
@@ -91,16 +98,23 @@ func TestQuickSortWithStrings(t *testing.T) {
 			//	"My sort of string array of size:%v took %s", len(expected),
 			//	time.Since(myStart),
 			//)
-			//			goStart := time.Now()
+			//goStart := time.Now()
 			sort.Strings(expected)
 			//log.Printf(
 			//	"Golang sort of string array of size:%v took %s", len(expected),
 			//	time.Since(goStart),
 			//)
 
+			eq := func(l, r string) bool {
+				if l == r {
+					return true
+				} else {
+					return false
+				}
+			}
 			var errors error
-			if diff := deep.Equal(xs, expected); diff != nil {
-				errors = multierror.Append(errors, fmt.Errorf("Arrays were not equal %v ", diff))
+			if !arrays.ArrayEquality(xs, expected, eq) {
+				errors = multierror.Append(errors, fmt.Errorf(" Actual: %v\nExpected:%v ", xs, expected))
 			}
 			if errors != nil {
 				return false, errors
