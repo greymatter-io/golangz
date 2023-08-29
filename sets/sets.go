@@ -11,7 +11,7 @@ import (
 // lt - a predicate function that returns true if l is lexically less than r
 // eq - a predicate function that returns true if l is equal to r
 // NOTE -- this is not a pure function. It mutates the input array a.
-func ToSet[T any](a []T, lt func(l, r T) bool, eq func(l, r T) bool) []T {
+func ToSet[T any](a []T, lt, eq func(l, r T) bool) []T {
 	sorting.QuickSort(a, lt)
 	var r = []T{}
 	var previous T
@@ -45,14 +45,14 @@ func SetMinus[T any](a []T, b []T, equality func(l, r T) bool) []T {
 
 // Returns the intersection of set 'a' and 'b'
 // The efficiency of this algorithm is O(5 * N)
-func SetIntersection[T any](a []T, b []T, equality func(l, r T) bool) []T {
-	ma := SetMinus(a, b, equality)
-	mb := SetMinus(b, a, equality)
-	return SetMinus(SetUnion(a, b), SetUnion(ma, mb), equality)
+func SetIntersection[T any](a []T, b []T, lt, eq func(l, r T) bool) []T {
+	ma := SetMinus(a, b, eq)
+	mb := SetMinus(b, a, eq)
+	return SetMinus(SetUnion(a, b, lt, eq), SetUnion(ma, mb, lt, eq), eq)
 }
 
 // Returns the set union of set 'a' and 'b'
-// The efficiency of this algorithm is O(N)
-func SetUnion[T any](a []T, b []T) []T {
-	return arrays.Append(a, b)
+func SetUnion[T any](a []T, b []T, lt, eq func(l, r T) bool) []T {
+	xs := arrays.Append(a, b)
+	return ToSet(xs, lt, eq)
 }

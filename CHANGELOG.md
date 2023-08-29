@@ -1,5 +1,9 @@
 # Golangz Changelog
 
+## [vxxxx] -- 2023-08-09
+- Adds Generic Either and Option types
+- Fixes bug in sets.Union to remove duplicates
+
 ## [v0.1.21] -- 2023-03-01
 - Removes go.mod because it is not necessary given go mod init and go mod tidy
 
