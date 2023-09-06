@@ -253,3 +253,57 @@ func TestDeletePastLastElement(t *testing.T) {
 		t.Errorf("Should have gotten an error trying to delete past the end of the heap")
 	}
 }
+
+func TestFindHeapPosition(t *testing.T) {
+	validateHeapPos := func(p Heap[Cache, string]) (bool, error) {
+		var errors error
+		for _, x := range p.hp {
+			idx := FindPosition(p, x.value)
+			if p.hp[idx].value != x.value {
+				errors = multierror.Append(errors, fmt.Errorf("FindPosition expected:%v, actual:%v", x.value, p.hp[idx].value))
+			}
+		}
+		if errors != nil {
+			return false, errors
+		} else {
+			return true, nil
+		}
+	}
+	ge := propcheck.ChooseInt(0, 1000000)
+	g := sets.ChooseSet(10, 1000, ge, ltInt, eqInt)
+	rng := propcheck.SimpleRNG{time.Now().Nanosecond()}
+
+	prop := propcheck.ForAll(g,
+		"Validate FindPosition  \n",
+		insert,
+		validateIsAHeap, validateHeapPos,
+	)
+	result := prop.Run(propcheck.RunParms{100, rng})
+	propcheck.ExpectSuccess[[]int](t, result)
+}
+
+func TestFindHeapPositionKeyDoesNotExist(t *testing.T) {
+	validateHeapPosDoesNotExist := func(p Heap[Cache, string]) (bool, error) {
+		var errors error
+		idx := FindPosition(p, "bogus")
+		if idx != -1 {
+			errors = multierror.Append(errors, fmt.Errorf("FindPosition expected -1 for the index of a non-existant reverse-lookup key in the heap"))
+		}
+		if errors != nil {
+			return false, errors
+		} else {
+			return true, nil
+		}
+	}
+	ge := propcheck.ChooseInt(0, 1000000)
+	g := sets.ChooseSet(10, 1000, ge, ltInt, eqInt)
+	rng := propcheck.SimpleRNG{time.Now().Nanosecond()}
+
+	prop := propcheck.ForAll(g,
+		"Validate that HeapPosition returns -1 if the reverse-lookup key does not exist in the heap  \n",
+		insert,
+		validateIsAHeap, validateHeapPosDoesNotExist,
+	)
+	result := prop.Run(propcheck.RunParms{100, rng})
+	propcheck.ExpectSuccess[[]int](t, result)
+}

@@ -138,6 +138,23 @@ func FindMin[A any, B comparable](h Heap[A, B]) (*A, error) {
 	return h.hp[0], nil
 }
 
+// This is a pure function.
+// Returns the position in the underylying heap array of the key value B from the reverdse-lookup map
+// Parameters:
+//
+//	h - the generic heap object containing the heap(represented as a slice) and the reverse-lookup map.
+//
+// Returns - the heap index(array index) of element with reverse key reverse key, or -1 if key does mot exist
+// Performance - O(1)
+func FindPosition[A any, B comparable](h Heap[A, B], reverseKey B) int {
+	p, there := h.position[reverseKey]
+	if there {
+		return p
+	} else {
+		return -1
+	}
+}
+
 // Inserts the given element into the given heap and returns the modified heap.
 //
 // O(log n)
