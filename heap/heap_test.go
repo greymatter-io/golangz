@@ -307,3 +307,20 @@ func TestFindHeapPositionKeyDoesNotExist(t *testing.T) {
 	result := prop.Run(propcheck.RunParms{100, rng})
 	propcheck.ExpectSuccess[[]int](t, result)
 }
+
+func TestEmpty(t *testing.T) {
+	h := New[Cache, string](elementKeyExtractor)
+	empty := Empty(h)
+	if !empty {
+		t.Errorf("Expected heap to be empty")
+	}
+}
+
+func TestNotEmpty(t *testing.T) {
+	var h = New[Cache, string](elementKeyExtractor)
+	h = HeapInsert(h, &Cache{12, fmt.Sprintf("key:%v", 12)}, lt)
+	empty := Empty(h)
+	if empty {
+		t.Errorf("Expected heap to not be empty")
+	}
+}

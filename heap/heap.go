@@ -10,6 +10,8 @@ import (
 //Invariants:
 //   1. Make sure your heap keys are unique, otherwise the heap locator replaceKey function will not work because it
 //  relies on a Golang map.
+//   2. None of the operations here are safe for concurrent access from multiple Goroutines.  You need to handle
+//       the mutexes yourself.
 
 // A generic heap containing the heap's underlying array and a corresponding map that allows
 // lookup of the key's index in the underlying array with O(1) cost.
@@ -170,7 +172,7 @@ func FindPosition[A any, B comparable](h Heap[A, B], reverseKey B) int {
 // NOTE This function assumes that the heap slice has no empty elements. It always adds a new one.
 func HeapInsert[A any, B comparable](h Heap[A, B], a *A, lt func(l, r *A) bool) Heap[A, B] {
 	h.hp = append(h.hp, nil) //Adds an empty element at end
-	l := len(h.hp) - 1       //Get index of end of heap nd stick new element there
+	l := len(h.hp) - 1       //Get index of end of heap and stick new element there
 	h.hp[l] = a
 
 	aa := h.elementKeyExtractor(h.hp[l])
@@ -178,6 +180,20 @@ func HeapInsert[A any, B comparable](h Heap[A, B], a *A, lt func(l, r *A) bool) 
 
 	//Now move it up as necessary until that part of tree satisfies heap property
 	return heapifyUp(h, l, lt)
+}
+
+// Determines if given heap is empty.
+//
+//	h - the generic heap object containing the heap(represented as a slice) and the reverse-lookup map.
+//
+// Returns - Whether or not the heap is empty
+// Performance - O(1)
+func Empty[A any, B comparable](h Heap[A, B]) bool {
+	if len(h.hp) == 0 {
+		return true
+	} else {
+		return false
+	}
 }
 
 // TODO this is not complete and its API may change. And I have not tested it.  Still fumbling around thinking about what I do with ther newKey
