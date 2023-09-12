@@ -84,12 +84,12 @@ func insert(p []int) Heap[Cache, string] {
 	return xss
 }
 
-var elementKeyExtractor = func(c *Cache) string {
+var elementBExtractor = func(c *Cache) string {
 	return c.value
 }
 
 func insertIntoHeap(xss []int) Heap[Cache, string] {
-	var h = New[Cache, string](elementKeyExtractor)
+	var h = New[Cache, string](elementBExtractor)
 	for _, x := range xss {
 		h = HeapInsert(h, &Cache{x, fmt.Sprintf("key:%v", x)}, lt)
 	}
@@ -100,7 +100,7 @@ func validateIsAHeap(p Heap[Cache, string]) (bool, error) {
 	var errors error
 	for idx, c := range p.hp {
 		errors = parentIsLessThanOrEqual(p, idx, parentLT)
-		k := p.elementKeyExtractor(p.hp[idx])
+		k := p.bExtractor(p.hp[idx])
 		if c.value != k {
 			errors = multierror.Append(errors, fmt.Errorf("Expected heap locator key value:%v using heap locator to equal heap key value:%v", k, c.value))
 		}
@@ -231,7 +231,7 @@ func TestHeapDeleteMinElement(t *testing.T) {
 }
 
 func TestDeleteFromEmptyHeap(t *testing.T) {
-	h, err := HeapDelete(New[Cache, string](elementKeyExtractor), 0, lt)
+	h, err := HeapDelete(New[Cache, string](elementBExtractor), 0, lt)
 
 	if err == nil {
 		t.Errorf("Should have gotten an error trying to delete from an empty heap")
@@ -245,7 +245,7 @@ func TestDeleteFromEmptyHeap(t *testing.T) {
 }
 
 func TestDeletePastLastElement(t *testing.T) {
-	var h = New[Cache, string](elementKeyExtractor)
+	var h = New[Cache, string](elementBExtractor)
 	h = HeapInsert(h, &Cache{12, fmt.Sprintf("key:%v", 12)}, lt)
 	h, err := HeapDelete(h, 2, lt)
 
@@ -309,7 +309,7 @@ func TestFindHeapPositionKeyDoesNotExist(t *testing.T) {
 }
 
 func TestEmpty(t *testing.T) {
-	h := New[Cache, string](elementKeyExtractor)
+	h := New[Cache, string](elementBExtractor)
 	empty := Empty(h)
 	if !empty {
 		t.Errorf("Expected heap to be empty")
@@ -317,10 +317,104 @@ func TestEmpty(t *testing.T) {
 }
 
 func TestNotEmpty(t *testing.T) {
-	var h = New[Cache, string](elementKeyExtractor)
+	var h = New[Cache, string](elementBExtractor)
 	h = HeapInsert(h, &Cache{12, fmt.Sprintf("key:%v", 12)}, lt)
 	empty := Empty(h)
 	if empty {
 		t.Errorf("Expected heap to not be empty")
 	}
+}
+
+func TestChangeKeyHeapifyDown(t *testing.T) {
+	insertThenChangeKey := func(p []int) Heap[Cache, string] {
+		xss := insertIntoHeap(p)
+
+		for _, currentA := range xss.hp {
+			k := currentA.key
+			newKey := k + 1200
+			newA := &Cache{
+				key:   newKey,
+				value: currentA.value,
+			}
+			newA.key = newKey
+			xss = ChangeKey(xss, currentA, newA, lt)
+		}
+		return xss
+	}
+
+	validateHeapPos := func(p Heap[Cache, string]) (bool, error) {
+		var errors error
+		if len(p.hp) == 0 {
+			fmt.Println(":Heap was empty")
+		}
+		for _, x := range p.hp {
+			idx := FindPosition(p, x.value)
+			if p.hp[idx].value != x.value {
+				errors = multierror.Append(errors, fmt.Errorf("FindPosition expected:%v, actual:%v", x.value, p.hp[idx].value))
+			}
+		}
+		if errors != nil {
+			return false, errors
+		} else {
+			return true, nil
+		}
+	}
+	ge := propcheck.ChooseInt(0, 50)
+	g := sets.ChooseSet(0, 100, ge, ltInt, eqInt)
+	rng := propcheck.SimpleRNG{time.Now().Nanosecond()}
+
+	prop := propcheck.ForAll(g,
+		"Validate ChangeKey  \n",
+		insertThenChangeKey,
+		validateIsAHeap, validateHeapPos,
+	)
+	result := prop.Run(propcheck.RunParms{500, rng})
+	propcheck.ExpectSuccess[[]int](t, result)
+}
+
+func TestChangeKeyHeapifyUp(t *testing.T) {
+	insertThenChangeKey := func(p []int) Heap[Cache, string] {
+		xss := insertIntoHeap(p)
+
+		for _, currentA := range xss.hp {
+			k := currentA.key
+			newKey := k - 1200
+			newA := &Cache{
+				key:   newKey,
+				value: currentA.value,
+			}
+			newA.key = newKey
+			xss = ChangeKey(xss, currentA, newA, lt)
+		}
+		return xss
+	}
+
+	validateHeapPos := func(p Heap[Cache, string]) (bool, error) {
+		var errors error
+		if len(p.hp) == 0 {
+			fmt.Println(":Heap was empty")
+		}
+		for _, x := range p.hp {
+			idx := FindPosition(p, x.value)
+			if p.hp[idx].value != x.value {
+				errors = multierror.Append(errors, fmt.Errorf("FindPosition expected:%v, actual:%v", x.value, p.hp[idx].value))
+			}
+		}
+		if errors != nil {
+			return false, errors
+		} else {
+			return true, nil
+		}
+	}
+	ge := propcheck.ChooseInt(0, 50)
+	g := sets.ChooseSet(0, 100, ge, ltInt, eqInt)
+	rng := propcheck.SimpleRNG{time.Now().Nanosecond()}
+
+	prop := propcheck.ForAll(g,
+		"Validate ChangeKey  \n",
+		insertThenChangeKey,
+		validateIsAHeap, validateHeapPos,
+	)
+	result := prop.Run(propcheck.RunParms{500, rng})
+	propcheck.ExpectSuccess[[]int](t, result)
 }
