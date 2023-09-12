@@ -17,16 +17,16 @@ import (
 // lookup of the key's index in the underlying array with O(1) cost.
 // Also contains a function that allows extraction of the A's key value for insertion into the position map.
 type Heap[A any, B comparable] struct {
-	hp                  []*A
-	position            map[B]int  //the type B represents the key type in the heap, providing a O(1) way of looking up the index of a key in the hp array(the heap)
-	elementKeyExtractor func(*A) B //A function that extracts the key of the given hp element from an A instance.
+	hp         []*A
+	position   map[B]int  //the type B represents the B type in the heap, providing a O(1) way of looking up the index of a B in the hp array(the heap)
+	bExtractor func(*A) B //A function that extracts the B value from the given A instance.
 }
 
-func New[A any, B comparable](keyExtractor func(*A) B) Heap[A, B] {
+func New[A any, B comparable](bExtractor func(*A) B) Heap[A, B] {
 	return Heap[A, B]{
-		hp:                  make([]*A, 0),
-		position:            make(map[B]int, 0),
-		elementKeyExtractor: keyExtractor,
+		hp:         make([]*A, 0),
+		position:   make(map[B]int, 0),
+		bExtractor: bExtractor,
 	}
 }
 
@@ -66,8 +66,8 @@ func heapifyUp[A any, B comparable](h Heap[A, B], i int, lt func(l, r *A) bool) 
 
 			h.hp[j] = temp
 			h.hp[i] = temp2
-			aa := h.elementKeyExtractor(h.hp[j])
-			bb := h.elementKeyExtractor(h.hp[i])
+			aa := h.bExtractor(h.hp[j])
+			bb := h.bExtractor(h.hp[i])
 			h.position[aa] = j
 			h.position[bb] = i
 			h = heapifyUp(h, j, lt)
@@ -116,8 +116,8 @@ func heapifyDown[A any, B comparable](h Heap[A, B], i int, lt func(l, r *A) bool
 		h.hp[j] = temp
 		h.hp[i] = temp2
 		///
-		aa := h.elementKeyExtractor(h.hp[j])
-		bb := h.elementKeyExtractor(h.hp[i])
+		aa := h.bExtractor(h.hp[j])
+		bb := h.bExtractor(h.hp[i])
 		h.position[aa] = j
 		h.position[bb] = i
 		///
@@ -175,7 +175,7 @@ func HeapInsert[A any, B comparable](h Heap[A, B], a *A, lt func(l, r *A) bool) 
 	l := len(h.hp) - 1       //Get index of end of heap and stick new element there
 	h.hp[l] = a
 
-	aa := h.elementKeyExtractor(h.hp[l])
+	aa := h.bExtractor(h.hp[l])
 	h.position[aa] = l
 
 	//Now move it up as necessary until that part of tree satisfies heap property
@@ -196,13 +196,24 @@ func Empty[A any, B comparable](h Heap[A, B]) bool {
 	}
 }
 
-// TODO this is not complete and its API may change. And I have not tested it.  Still fumbling around thinking about what I do with ther newKey
-func ChangeKey[A, B comparable](h Heap[A, B], currentKey, newKey *A, lt func(l, r *A) bool) Heap[A, B] {
-	aa := h.elementKeyExtractor(currentKey)
-	l := h.position[aa]
-
-	h.position[aa] = l
-
+// Replaces the currentA element in the heap with the newA element, mocing it up or down so as to maintain
+// the heap property of a parent always being less than or equal to all its children.
+// Parameters:
+//
+//		h - the generic heap object containing the heap(represented as a slice) and the reverse-lookup map.
+//		currentA - the heap element you want to replace
+//	 newA - the heap element you are replacing currentA with
+//		lt func(l, r A) bool - A predicate function that determines whether or not the left A element is less than the right A element.
+//
+// Returns - The original heap that the currentA element replaced with the newA element and with the newA element
+//
+//	in its proper place in the heap
+//
+// Performance - O(log N)
+func ChangeKey[A, B comparable](h Heap[A, B], currentA, newA *A, lt func(l, r *A) bool) Heap[A, B] {
+	b := h.bExtractor(currentA)
+	l := h.position[b]
+	h.hp[l] = newA
 	parent := ParentIdx(l)
 	if parent > 0 && lt(h.hp[l], h.hp[parent]) {
 		return heapifyUp(h, l, lt)
@@ -231,15 +242,15 @@ func HeapDelete[A any, B comparable](h Heap[A, B], i int, lt func(l, r *A) bool)
 
 	//Delete last element and return. No need to move anything around.
 	if i == len(h.hp)-1 {
-		k := h.elementKeyExtractor(h.hp[i])
+		k := h.bExtractor(h.hp[i])
 		delete(h.position, k)
 		h.hp = h.hp[0 : len(h.hp)-1]
 		return h, nil
 	}
-	k := h.elementKeyExtractor(h.hp[i])
+	k := h.bExtractor(h.hp[i])
 	delete(h.position, k)
 	h.hp[i] = h.hp[len(h.hp)-1]
-	j := h.elementKeyExtractor(h.hp[i])
+	j := h.bExtractor(h.hp[i])
 	h.position[j] = i
 	h.hp = h.hp[0 : len(h.hp)-1]
 
