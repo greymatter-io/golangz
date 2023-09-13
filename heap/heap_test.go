@@ -418,3 +418,70 @@ func TestChangeKeyHeapifyUp(t *testing.T) {
 	result := prop.Run(propcheck.RunParms{500, rng})
 	propcheck.ExpectSuccess[[]int](t, result)
 }
+
+func TestChangeKeyFirstMidAndLast(t *testing.T) {
+	insertThenChangeKey := func(p []int) Heap[Cache, string] {
+		xss := insertIntoHeap(p)
+
+		var e = xss.hp[0]
+		var k = e.key
+		var newKey = k - 1200
+		var newA = &Cache{
+			key:   newKey,
+			value: e.value,
+		}
+		newA.key = newKey
+		xss = ChangeKey(xss, e, newA, lt)
+
+		e = xss.hp[len(p)/2]
+		k = e.key
+		newKey = k - 1200
+		newA = &Cache{
+			key:   newKey,
+			value: e.value,
+		}
+		newA.key = newKey
+		xss = ChangeKey(xss, e, newA, lt)
+
+		e = xss.hp[len(p)-1]
+		k = e.key
+		newKey = k - 1200
+		newA = &Cache{
+			key:   newKey,
+			value: e.value,
+		}
+		newA.key = newKey
+		xss = ChangeKey(xss, e, newA, lt)
+
+		return xss
+	}
+
+	validateHeapPos := func(p Heap[Cache, string]) (bool, error) {
+		var errors error
+		if len(p.hp) == 0 {
+			fmt.Println(":Heap was empty")
+		}
+		for _, x := range p.hp {
+			idx := FindPosition(p, x.value)
+			if p.hp[idx].value != x.value {
+				errors = multierror.Append(errors, fmt.Errorf("FindPosition expected:%v, actual:%v", x.value, p.hp[idx].value))
+			}
+		}
+		if errors != nil {
+			return false, errors
+		} else {
+			return true, nil
+		}
+	}
+	ge := propcheck.ChooseInt(0, 50)
+	g := sets.ChooseSet(6, 23, ge, ltInt, eqInt)
+	rng := propcheck.SimpleRNG{time.Now().Nanosecond()}
+
+	prop := propcheck.ForAll(g,
+		"Validate ChangeKey  \n",
+		insertThenChangeKey,
+		validateIsAHeap, validateHeapPos,
+	)
+	result := prop.Run(propcheck.RunParms{500, rng})
+	propcheck.ExpectSuccess[[]int](t, result)
+}
