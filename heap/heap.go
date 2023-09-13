@@ -5,11 +5,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// A generic heap that supports O(log n) insert, delete and change key operation as well as O(1) find minimum value operations.
+// A generic heap that supports O(log n) insert, delete and change key operations, O(1) fund position operation, and O(1) find minimum value operations.
 //
 //Invariants:
-//   1. Make sure your heap keys are unique, otherwise the heap locator replaceKey function will not work because it
-//  relies on a Golang map.
+//   1. Make sure your heap keys are unique, otherwise the heap locator replaceKey function will choose one element with that key but there are other elements with that same key
 //   2. None of the operations here are safe for concurrent access from multiple Goroutines.  You need to handle
 //       the mutexes yourself.
 
@@ -196,18 +195,17 @@ func Empty[A any, B comparable](h Heap[A, B]) bool {
 	}
 }
 
-// Replaces the currentA element in the heap with the newA element, mocing it up or down so as to maintain
+// Replaces the currentA element in the heap with the newA element, moving it up or down so as to maintain
 // the heap property of a parent always being less than or equal to all its children.
 // Parameters:
 //
-//		h - the generic heap object containing the heap(represented as a slice) and the reverse-lookup map.
-//		currentA - the heap element you want to replace
-//	 newA - the heap element you are replacing currentA with
-//		lt func(l, r A) bool - A predicate function that determines whether or not the left A element is less than the right A element.
+//	h - the generic heap object containing the heap(represented as a slice) and the reverse-lookup map.
+//	currentA - the heap element you want to replace
+//	newA - the heap element you are replacing currentA with
+//	lt func(l, r A) bool - A predicate function that determines whether or not the left A element is less than the right A element.
 //
-// Returns - The original heap that the currentA element replaced with the newA element and with the newA element
-//
-//	in its proper place in the heap
+//	Returns - The original heap with the currentA element replaced by the newA element and with the newA element
+//	in its proper place in the heap.  Its up to the caller to ensure the currentA and newA are the same except for the key.
 //
 // Performance - O(log N)
 func ChangeKey[A, B comparable](h Heap[A, B], currentA, newA *A, lt func(l, r *A) bool) Heap[A, B] {
