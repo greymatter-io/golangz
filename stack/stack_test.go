@@ -2,10 +2,8 @@ package stack
 
 import (
 	"fmt"
-	"github.com/greymatter-io/golangz/option"
 	"github.com/greymatter-io/golangz/propcheck"
 	"github.com/hashicorp/go-multierror"
-	"reflect"
 	"testing"
 	"time"
 )
@@ -21,17 +19,14 @@ func TestPush(t *testing.T) {
 		},
 		func(xss []string) (bool, error) {
 			var errors error
-			var l *Stack[string]
+			var l = NewStack[string]()
 			var i int
 			for {
 				if len(xss) == 0 {
 					break
 				}
-				l = Push(xss[i], l)
-				p, err := Peek(l)
-				if err != nil {
-					fmt.Println(err)
-				}
+				l = l.Push(xss[i])
+				p, _ := l.Peek()
 				if p != xss[i] {
 					errors = multierror.Append(errors, fmt.Errorf("string %v  should have been %v pushed to top of Stack", p, xss[i]))
 				}
@@ -62,14 +57,14 @@ func TestPop(t *testing.T) {
 			return xs
 		},
 		func(xss []string) (bool, error) {
-			makeStack := func(xss []string) *Stack[string] {
-				var l *Stack[string]
+			makeStack := func(xss []string) Stack[string] {
+				var l = NewStack[string]()
 				var i int
 				for {
 					if len(xss) == 0 {
 						break
 					}
-					l = Push(xss[i], l)
+					l = l.Push(xss[i])
 					if i+1 == len(xss) {
 						break
 					} else {
@@ -80,12 +75,10 @@ func TestPop(t *testing.T) {
 			}
 
 			var l = makeStack(xss)
-			var p string
 			var errors error
-			var popErr error
 			for i := len(xss) - 1; i >= 0; i-- {
-				p, l, popErr = Pop(l)
-				fmt.Printf("popErr:%v\n", popErr)
+				p, _ := l.Peek()
+				l = l.Pop()
 				if p != xss[i] {
 					errors = multierror.Append(errors, fmt.Errorf("string %v  should have been %v popped from top of Stack", p, xss[i]))
 				}
@@ -102,37 +95,17 @@ func TestPop(t *testing.T) {
 }
 
 func TestPopEmptyStack(t *testing.T) {
-	emptyStack := &Stack[string]{}
-	_, _, err := Pop(emptyStack)
-	if err == nil {
-		t.Errorf("expected error")
+	emptyStack := NewStack[string]()
+	s := emptyStack.Pop()
+	if !s.IsEmpty() {
+		t.Errorf("expected stack to be empty")
 	}
 }
 
-func TestPopOEmptyStack(t *testing.T) {
-	emptyStack := &Stack[string]{}
-	r := PopO(emptyStack)
-	f := func(s propcheck.Pair[string, *Stack[string]]) string {
-		return s.A
-	}
-	actual := option.Map(r, f)
-	s := fmt.Sprint(reflect.TypeOf(actual))
-	if s != "option.None[string]" {
-		t.Errorf("Expected \"option.None[string]\" actual:%v", s)
-	}
-}
-
-func TestPopNonEmptyStack(t *testing.T) {
-	a := &Stack[string]{}
-	b := PushO("fred", a)
-	 := PopO(b)
-	f := func(s propcheck.Pair[string, *Stack[string]]) string {
-		return s.A
-	}
-
-	actual := option.Map(r, f)
-	s := fmt.Sprint(reflect.TypeOf(actual))
-	if s != "option.None[string]" {
-		t.Errorf("Expected \"option.None[string]\" actual:%v", s)
+func TestPopIsEmptyStack(t *testing.T) {
+	s := NewStack[string]()
+	s = s.Push("fred")
+	if s.IsEmpty() {
+		t.Errorf("expected stack to be empty")
 	}
 }

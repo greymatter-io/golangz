@@ -1,89 +1,45 @@
 package stack
 
-import (
-	"fmt"
-	"github.com/greymatter-io/golangz/linked_list"
-	"github.com/greymatter-io/golangz/option"
-	"github.com/greymatter-io/golangz/propcheck"
-)
+// An Immutable stack, mostly from here: https://www.reddit.com/r/golang/comments/13hi00u/should_constructor_functions_always_return_a/
+// the pointer type
+type node[T any] struct {
+	val  T
+	next *node[T]
+}
 
-// Cannot have generic alias with a type parameter as of Golang 1.22
+// the value wrapper
 type Stack[T any] struct {
-	l *linked_list.LinkedList[T]
+	root *node[T]
 }
 
-func PushO[T any](h T, s *Stack[T]) option.Option[*Stack[T]] {
-	newStack := &Stack[T]{&linked_list.LinkedList[T]{}}
-	if s == nil {
-		newStack.l.Head = h
-	} else {
-		newStack.l.Head = h
-		newStack.l.Tail = s.l
+func NewStack[T any]() Stack[T] {
+	return Stack[T]{}
+}
+
+// returns values - hides the pointers
+func (s Stack[T]) Push(val T) Stack[T] {
+	newRoot := node[T]{val: val, next: s.root}
+	return Stack[T]{root: &newRoot}
+}
+
+func (s Stack[T]) Pop() Stack[T] {
+	if s.root == nil {
+		return s
 	}
-	return option.Some[*Stack[T]]{newStack}
+	return Stack[T]{root: s.root.next}
 }
 
-func Push[T any](h T, s *Stack[T]) *Stack[T] {
-	newStack := &Stack[T]{&linked_list.LinkedList[T]{}}
-	if s == nil {
-		newStack.l.Head = h
-		return newStack
+func (s Stack[T]) IsEmpty() bool {
+	if s.root == nil {
+		return true
 	} else {
-		newStack.l.Head = h
-		newStack.l.Tail = s.l
-		return newStack
-	}
-}
-
-func PopO[T any](s *Stack[T]) option.Option[propcheck.Pair[T, *Stack[T]]] {
-	newStack := &Stack[T]{&linked_list.LinkedList[T]{}}
-	top, err := Peek(s)
-	if err != nil {
-		return option.None[T]{}
-	} else {
-		if s.l.Tail != nil {
-			newStack.l.Head = s.l.Tail.Head
-			newStack.l.Tail = s.l.Tail.Tail
-		}
-		r := option.Some[propcheck.Pair[T, *Stack[T]]]{propcheck.Pair[T, *Stack[T]]{top, newStack}}
-		return r
+		return false
 	}
 }
 
-// TODO this should return an Option[Pair[T, Stack[T]]
-func Pop[T any](s *Stack[T]) (T, *Stack[T], error) {
-	newStack := &Stack[T]{&linked_list.LinkedList[T]{}}
-	top, err := Peek(s)
-	if err != nil {
-		return top, newStack, err
-	} else {
-		if s.l.Tail != nil {
-			newStack.l.Head = s.l.Tail.Head
-			newStack.l.Tail = s.l.Tail.Tail
-		}
-		return top, newStack, nil
+func (s Stack[T]) Peek() (val T, ok bool) {
+	if s.root == nil {
+		return val, false
 	}
-}
-
-// option.Option[propcheck.Pair[T, *Stack[T]]]
-func PeekO[T any](s *Stack[T]) option.Option[T] {
-	if s.l == nil {
-		return option.None[T]{}
-	} else {
-		return option.Some[T]{s.l.Head}
-	}
-}
-
-func Peek[T any](s *Stack[T]) (T, error) {
-	if s.l == nil {
-		return Zero[T](), fmt.Errorf("Cannot access top of an empty stack")
-	} else {
-		return s.l.Head, nil
-	}
-}
-
-// TODO don;t need zero value if you use option
-func Zero[T any]() T {
-	var r T
-	return r
+	return s.root.val, true
 }
