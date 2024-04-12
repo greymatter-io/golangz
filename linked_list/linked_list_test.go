@@ -27,8 +27,8 @@ func TestPush(t *testing.T) {
 					break
 				}
 				l = Push(xss[i], l)
-				if l.head != xss[i] {
-					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to head of LinkedList", l.head, xss[i]))
+				if l.Head != xss[i] {
+					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to Head of LinkedList", l.Head, xss[i]))
 				}
 				if i+1 == len(xss) {
 					break
@@ -65,11 +65,11 @@ func TestAddLast(t *testing.T) {
 					break
 				}
 				l = AddLast(xss[i], l)
-				if l.head == xss[i] && i > 0 {
-					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to last Cons of LinkedList, not the beginning", l.head, xss[i]))
+				if l.Head == xss[i] && i > 0 {
+					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to last Cons of LinkedList, not the beginning", l.Head, xss[i]))
 				}
 				if Len(l) != i+1 {
-					errors = multierror.Append(errors, fmt.Errorf("Element %v did not get added to LinkedList", l.head))
+					errors = multierror.Append(errors, fmt.Errorf("Element %v did not get added to LinkedList", l.Head))
 				}
 				if i+1 == len(xss) {
 					break
@@ -282,7 +282,7 @@ func TestHead(t *testing.T) {
 				}
 				l = Push(xss[i], l)
 				if Head(l) != xss[i] {
-					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to head of LinkedList", Head(l), xss[i]))
+					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to Head of LinkedList", Head(l), xss[i]))
 				}
 				if i+1 == len(xss) {
 					break
