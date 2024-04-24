@@ -48,12 +48,12 @@ func Peek[A any](s Stack[A]) (val A, ok bool) {
 
 // FoldRight
 /*	FoldRight[B](l Stack[A], z: B)(op: (A, B) => B): B
-		  Applies a binary operator to all elements of this list and a start value, going right to left. Left is the top of the stack, and right is the bottom.
-		  B -the result type of the binary operator.
-		  z - the start or zero value.
-		  op  - the binary operator.
-		  returns - the result of inserting op between consecutive elements of the stack, going right to left with the start
-			value z on the right: op(x1, op(x2, ... op(xn, z)...)) where x1, ..., xn are the elements of this list. Returns z if this list is empty.
+	  Applies a binary operator to all elements of this list and a start value, going right to left. Left is the top of the stack, and right is the bottom.
+	  B -the result type of the binary operator.
+	  z - the start or zero value.
+	  op  - the binary operator.
+	  returns - the result of inserting op between consecutive elements of the stack, going right to left with the start
+		value z on the right: op(x1, op(x2, ... op(xn, z)...)) where x1, ..., xn are the elements of this list. Returns z if this list is empty.
 */
 func FoldRight[A, B any](l Stack[A], z B, f func(A, B) B) B {
 	if IsEmpty(l) {
