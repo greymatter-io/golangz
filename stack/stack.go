@@ -67,7 +67,8 @@ func FoldRight[A, B any](l Stack[A], z B, f func(A, B) B) B {
 /* FoldLeft[B](l Stack[A], z: B)(op: (B, A) => B): B
 * Applies a binary operator to all elements of this list and a start value, going left to right. Left is the top of the stack, and right is the bottom.
 *   FoldLeft can be made stack-safe,  tail recursive if the compiler supports that optimization.  Note how the f function is executed
-*    every time the FoldLeft is invoked without waiting for the recursive stack of function calls to reach bottom.
+*    every time the FoldLeft is invoked without waiting for the recursive stack of function calls to reach bottom. The f function is in "tail" position, fully
+*    evaluated before the next recursive call to FoldLeft.
 *    Golang's compiler does not optimize tail calls.  But you can make it do that using a thunk as shown in Arrays.FoldLeft in the arrays package of Golangz.
 *	  B -the result type of the binary operator.
 *	  z - the start or zero value.
