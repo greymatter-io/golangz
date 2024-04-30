@@ -467,3 +467,53 @@ func TestOrderingOfFoldLeftAndFoldRight(t *testing.T) {
 	result := prop.Run(propcheck.RunParms{100, rng})
 	propcheck.ExpectSuccess[[]string](t, result)
 }
+
+func deleteInBigOh1[T any](l *LinkedList[T], x *LinkedList[T]) *LinkedList[T] {
+	x.Head = x.Tail.Head
+	x.Tail = x.Tail.Tail
+	return x
+}
+
+func TestDeleteInBigOh1(t *testing.T) {
+	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
+	ge := propcheck.ChooseArray(5, 8, propcheck.String(40))
+
+	prop := propcheck.ForAll(ge,
+		"Validate Big Oh 1 delete on singly linked LinkedList \n",
+		func(xs []string) []string {
+			return xs
+		},
+		func(xss []string) (bool, error) {
+			var errors error
+			var l *LinkedList[string]
+			var i int
+			for {
+				if len(xss) == 0 {
+					break
+				}
+				l = Push(xss[i], l)
+				if i+1 == len(xss) {
+					break
+				} else {
+					i++
+				}
+			}
+			m := deleteInBigOh1(l, l.Tail.Tail)
+
+			if m.Head != l.Tail.Tail.Head {
+				t.Errorf("Expected %v actual:%v", l.Tail.Tail.Head, m.Head)
+			}
+			if m.Tail != l.Tail.Tail.Tail {
+				t.Errorf("Expected %v actual:%v", l.Tail.Tail.Tail, m.Tail)
+			}
+			if errors != nil {
+				return false, errors
+			} else {
+				return true, nil
+			}
+		},
+	)
+	result := prop.Run(propcheck.RunParms{100, rng})
+	propcheck.ExpectSuccess[[]string](t, result)
+
+}
