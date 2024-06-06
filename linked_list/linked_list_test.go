@@ -9,6 +9,55 @@ import (
 	"time"
 )
 
+func TestFilter(t *testing.T) {
+	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
+	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
+
+	prop := propcheck.ForAll(ge,
+		"Validate Push for LinkedList  \n",
+		func(xs []string) []string {
+			return xs
+		},
+		func(xss []string) (bool, error) {
+			var errors error
+			var l *LinkedList[string]
+			var i int
+			for {
+				if len(xss) == 0 {
+					break
+				}
+				l = Push(xss[i], l)
+				if l.Head != xss[i] {
+					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to Head of LinkedList", l.Head, xss[i]))
+				}
+				p := func(s string) bool {
+					if s == xss[i] {
+						return true
+					} else {
+						return false
+					}
+				}
+				r := Filter(l, p)
+				if r.Head != xss[i] {
+					errors = multierror.Append(errors, fmt.Errorf("Filter should have found %v in the LinkedList", xss[i]))
+				}
+				if i+1 == len(xss) {
+					break
+				} else {
+					i++
+				}
+			}
+			if errors != nil {
+				return false, errors
+			} else {
+				return true, nil
+			}
+		},
+	)
+	result := prop.Run(propcheck.RunParms{100, rng})
+	propcheck.ExpectSuccess[[]string](t, result)
+}
+
 func TestPush(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
 	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
@@ -27,8 +76,8 @@ func TestPush(t *testing.T) {
 					break
 				}
 				l = Push(xss[i], l)
-				if l.head != xss[i] {
-					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to head of LinkedList", l.head, xss[i]))
+				if l.Head != xss[i] {
+					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to Head of LinkedList", l.Head, xss[i]))
 				}
 				if i+1 == len(xss) {
 					break
@@ -65,11 +114,11 @@ func TestAddLast(t *testing.T) {
 					break
 				}
 				l = AddLast(xss[i], l)
-				if l.head == xss[i] && i > 0 {
-					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to last Cons of LinkedList, not the beginning", l.head, xss[i]))
+				if l.Head == xss[i] && i > 0 {
+					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to last Cons of LinkedList, not the beginning", l.Head, xss[i]))
 				}
 				if Len(l) != i+1 {
-					errors = multierror.Append(errors, fmt.Errorf("Element %v did not get added to LinkedList", l.head))
+					errors = multierror.Append(errors, fmt.Errorf("Element %v did not get added to LinkedList", l.Head))
 				}
 				if i+1 == len(xss) {
 					break
@@ -282,7 +331,7 @@ func TestHead(t *testing.T) {
 				}
 				l = Push(xss[i], l)
 				if Head(l) != xss[i] {
-					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to head of LinkedList", Head(l), xss[i]))
+					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to Head of LinkedList", Head(l), xss[i]))
 				}
 				if i+1 == len(xss) {
 					break
@@ -466,4 +515,48 @@ func TestOrderingOfFoldLeftAndFoldRight(t *testing.T) {
 	)
 	result := prop.Run(propcheck.RunParms{100, rng})
 	propcheck.ExpectSuccess[[]string](t, result)
+}
+
+func TestDeleteInBigOh1(t *testing.T) {
+	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
+	ge := propcheck.ChooseArray(5, 8, propcheck.String(40))
+
+	prop := propcheck.ForAll(ge,
+		"Validate Big Oh 1 delete on singly linked LinkedList \n",
+		func(xs []string) []string {
+			return xs
+		},
+		func(xss []string) (bool, error) {
+			var errors error
+			var l *LinkedList[string]
+			var i int
+			for {
+				if len(xss) == 0 {
+					break
+				}
+				l = Push(xss[i], l)
+				if i+1 == len(xss) {
+					break
+				} else {
+					i++
+				}
+			}
+			m := DeleteInBigOh1(l.Tail.Tail)
+
+			if m.Head != l.Tail.Tail.Head {
+				t.Errorf("Expected %v actual:%v", l.Tail.Tail.Head, m.Head)
+			}
+			if m.Tail != l.Tail.Tail.Tail {
+				t.Errorf("Expected %v actual:%v", l.Tail.Tail.Tail, m.Tail)
+			}
+			if errors != nil {
+				return false, errors
+			} else {
+				return true, nil
+			}
+		},
+	)
+	result := prop.Run(propcheck.RunParms{100, rng})
+	propcheck.ExpectSuccess[[]string](t, result)
+
 }
