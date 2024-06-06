@@ -11,6 +11,12 @@ func (w *LinkedList[T]) String() string {
 	return fmt.Sprintf("LinkedList {Head: %v, Tail: %v}", w.Head, w.Tail)
 }
 
+func DeleteInBigOh1[T any](x *LinkedList[T]) *LinkedList[T] {
+	x.Head = x.Tail.Head
+	x.Tail = x.Tail.Tail
+	return x
+}
+
 func Push[T any](h T, l *LinkedList[T]) *LinkedList[T] {
 	if l == nil {
 		return &LinkedList[T]{

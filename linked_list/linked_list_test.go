@@ -9,6 +9,55 @@ import (
 	"time"
 )
 
+func TestFilter(t *testing.T) {
+	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
+	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
+
+	prop := propcheck.ForAll(ge,
+		"Validate Push for LinkedList  \n",
+		func(xs []string) []string {
+			return xs
+		},
+		func(xss []string) (bool, error) {
+			var errors error
+			var l *LinkedList[string]
+			var i int
+			for {
+				if len(xss) == 0 {
+					break
+				}
+				l = Push(xss[i], l)
+				if l.Head != xss[i] {
+					errors = multierror.Append(errors, fmt.Errorf("Head %v  should have been %v pushed to Head of LinkedList", l.Head, xss[i]))
+				}
+				p := func(s string) bool {
+					if s == xss[i] {
+						return true
+					} else {
+						return false
+					}
+				}
+				r := Filter(l, p)
+				if r.Head != xss[i] {
+					errors = multierror.Append(errors, fmt.Errorf("Filter should have found %v in the LinkedList", xss[i]))
+				}
+				if i+1 == len(xss) {
+					break
+				} else {
+					i++
+				}
+			}
+			if errors != nil {
+				return false, errors
+			} else {
+				return true, nil
+			}
+		},
+	)
+	result := prop.Run(propcheck.RunParms{100, rng})
+	propcheck.ExpectSuccess[[]string](t, result)
+}
+
 func TestPush(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
 	ge := propcheck.ChooseArray(0, 20, propcheck.String(40))
@@ -468,12 +517,6 @@ func TestOrderingOfFoldLeftAndFoldRight(t *testing.T) {
 	propcheck.ExpectSuccess[[]string](t, result)
 }
 
-func deleteInBigOh1[T any](l *LinkedList[T], x *LinkedList[T]) *LinkedList[T] {
-	x.Head = x.Tail.Head
-	x.Tail = x.Tail.Tail
-	return x
-}
-
 func TestDeleteInBigOh1(t *testing.T) {
 	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
 	ge := propcheck.ChooseArray(5, 8, propcheck.String(40))
@@ -498,7 +541,7 @@ func TestDeleteInBigOh1(t *testing.T) {
 					i++
 				}
 			}
-			m := deleteInBigOh1(l, l.Tail.Tail)
+			m := DeleteInBigOh1(l.Tail.Tail)
 
 			if m.Head != l.Tail.Tail.Head {
 				t.Errorf("Expected %v actual:%v", l.Tail.Tail.Head, m.Head)
