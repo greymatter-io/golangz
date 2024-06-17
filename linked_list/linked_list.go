@@ -11,6 +11,7 @@ func (w *LinkedList[T]) String() string {
 	return fmt.Sprintf("LinkedList {Head: %v, Tail: %v}", w.Head, w.Tail)
 }
 
+//Replaces the current head of the list with the current tail, in BigOH(1).
 func DeleteInBigOh1[T any](x *LinkedList[T]) *LinkedList[T] {
 	x.Head = x.Tail.Head
 	x.Tail = x.Tail.Tail

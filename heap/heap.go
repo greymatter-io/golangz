@@ -5,7 +5,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// A generic heap that supports O(log n) insert, delete and change key operations, O(1) fund position operation, and O(1) find minimum value operations.
+// A generic heap that supports O(log n) insert, delete and change key operations, O(1) find position operation, and O(1) find minimum value operations.
+// O(1) exist for find because this heap implementation contains a map of keys and their positions in the underlying hp array.
 //
 //Invariants:
 //   1. Make sure your heap keys are unique, otherwise the heap locator replaceKey function will choose one element with that key but there are other elements with that same key
@@ -75,7 +76,7 @@ func heapifyUp[A any, B comparable](h Heap[A, B], i int, lt func(l, r *A) bool) 
 	return h
 }
 
-// This is not a pure function because it modified the array each time.
+// This is not a pure function because it modifies the array each time.
 // Parameters:
 //
 //	h - the generic heap object containing the heap(represented as a slice) and the reverse-lookup map.
