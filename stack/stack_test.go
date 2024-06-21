@@ -207,3 +207,46 @@ func TestFoldLeft(t *testing.T) {
 	result := prop.Run(propcheck.RunParms{100, rng})
 	propcheck.ExpectSuccess[[]int](t, result)
 }
+
+func TestFromArray(t *testing.T) {
+	rng := propcheck.SimpleRNG{Seed: time.Now().Nanosecond()}
+	ge := propcheck.ChooseArray(0, 1000, propcheck.ChooseInt(-10, 1000))
+
+	prop := propcheck.ForAll(ge,
+		"Validate FromArray for Stack  \n",
+		func(xs []int) propcheck.Pair[[]int, Stack[int]] {
+			return propcheck.Pair[[]int, Stack[int]]{xs, FromArray(xs)}
+		},
+		func(xss propcheck.Pair[[]int, Stack[int]]) (bool, error) {
+			var errors error
+			arr := xss.A
+			st := xss.B
+
+			sumStack := func(b, a int) int {
+				return b + a
+			}
+			g := FoldLeft[int, int](st, 0, sumStack)
+
+			var h = 0
+			for _, x := range arr {
+				h = h + x
+			}
+			if h != g {
+				t.Errorf("actual: %v, expected: %v", h, g)
+			}
+			i, _ := Peek(st)
+			if len(arr) > 0 && i != arr[0] {
+				if h != g {
+					t.Errorf("actual first element: %v, expected first element: %v", h, g)
+				}
+			}
+			if errors != nil {
+				return false, errors
+			} else {
+				return true, nil
+			}
+		},
+	)
+	result := prop.Run(propcheck.RunParms{100, rng})
+	propcheck.ExpectSuccess[[]int](t, result)
+}

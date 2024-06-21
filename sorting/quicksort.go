@@ -1,10 +1,23 @@
 package sorting
 
+import (
+	"math/rand"
+)
+
 func qs(l, r int, partition func(l, r, pivot int) int) {
 	if l < r {
 		pi := partition(l, r, l+(r-l)/2)
 		qs(l, pi-1, partition)
 		qs(pi+1, r, partition)
+	}
+}
+
+// FisherYatesShuffle shuffles an array in place using the Fisher-Yates algorithm
+func FisherYatesShuffle[T any](arr []T) {
+	n := len(arr)
+	for i := n - 1; i > 0; i-- {
+		j := rand.Intn(i + 1)           // Generate a random index j such that 0 <= j <= i
+		arr[i], arr[j] = arr[j], arr[i] // Swap elements arr[i] and arr[j]
 	}
 }
 
@@ -31,6 +44,7 @@ func QuickSort[T any](xs []T, lessThan func(l, r T) bool) {
 		return j
 	}
 
+	FisherYatesShuffle(xs)
 	if len(xs) == 0 {
 		return
 	} else {
