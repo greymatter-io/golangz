@@ -83,3 +83,13 @@ func FoldLeft[A, B any](l Stack[A], z B, f func(B, A) B) B {
 		return FoldLeft(Stack[A]{root: l.root.next}, f(z, l.root.val), f)
 	}
 }
+
+// Converts an array into a stack efficiently and preserves the order, first array element of source array is on top.
+func FromArray[A any](xs []A) Stack[A] {
+	var r = NewStack[A]()
+	l := len(xs)
+	for i := l - 1; i >= 0; i-- {
+		r = Push(r, xs[i])
+	}
+	return r
+}
